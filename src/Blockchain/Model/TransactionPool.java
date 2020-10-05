@@ -8,4 +8,13 @@ public class TransactionPool {
     public TransactionPool() {
         transactions = new ArrayList();
     }
+
+    public ArrayList<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(ArrayList<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+    
 }
