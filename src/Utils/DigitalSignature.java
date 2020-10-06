@@ -1,4 +1,4 @@
-package Main;
+package Utils;
 import Blockchain.Model.Transaction;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
