@@ -1,8 +1,13 @@
 package Blockchain.Model;
+
+import Main.Main;
+import Utils.HashUtils;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
+
 public class Block {
+
     int idCadena;
     int index;
     LocalDateTime timestamp;
@@ -11,7 +16,11 @@ public class Block {
     String hash;
     int nonce;
     Random r;
-    
+
+    public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash) {
+        this(index, timestamp, transactions, previousHash, Main.DIFFICULTY);
+    }
+
     public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash, int difficulty) {
         r = new Random();
         this.index = index;
@@ -19,7 +28,8 @@ public class Block {
         this.transactions = transactions;
         this.previousHash = previousHash;
         this.nonce = r.nextInt();
-        //TO-DO hash
+        this.hash = HashUtils.calculateHash(this.toString4Hash());
+        validate(difficulty);
     }
 
     public int getIdCadena() {
@@ -85,5 +95,50 @@ public class Block {
     public void setR(Random r) {
         this.r = r;
     }
-    
+
+    public String getDifficultyString(int difficulty) {
+        StringBuffer s = new StringBuffer();
+        for (int i = 0; i < difficulty; i++) {
+            s.append("0");
+        }
+        return s.toString();
+    }
+
+    public void renonce() {
+        this.nonce = r.nextInt();
+    }
+
+    public void rehash() {
+        this.hash = HashUtils.calculateHash(toString4Hash());
+    }
+
+    public String validate(int difficulty) {
+        int j = 0;
+        String s = getDifficultyString(difficulty);
+
+        while (!(hash.substring(0, difficulty).startsWith(s))) {
+            renonce(); //Finde a new nonce
+            rehash();  //Recalculate the hash value
+            j++;
+        }
+        System.out.println(j + " intentos");
+        return hash;
+    }
+
+    public String toString4Hash() {
+        StringBuffer s = new StringBuffer();
+        s.append(index);
+        s.append(timestamp);
+        s.append(transactions);
+        s.append(previousHash);
+        s.append(nonce);
+        return s.toString();
+    }
+
+    public boolean verifyHash(int difficulty) {
+        if (this.hash.equals(HashUtils.calculateHash(this.toString4Hash()))) {
+            return true;
+        }
+        return false;
+    }
 }

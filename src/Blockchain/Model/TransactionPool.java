@@ -9,6 +9,15 @@ public class TransactionPool {
         transactions = new ArrayList();
     }
 
+    public void addTransaction(Transaction t){
+        this.transactions.add(t);
+        
+    }
+
+    public void clear(){
+        transactions.clear();
+    }
+    
     public ArrayList<Transaction> getTransactions() {
         return transactions;
     }
