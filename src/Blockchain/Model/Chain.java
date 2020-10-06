@@ -66,6 +66,7 @@ public class Chain {
             System.out.println("Index: " + b.getIndex());
             System.out.println("Previous Hash:" + b.getPreviousHash());
             System.out.println("Hash:" + b.getHash());
+            System.out.println("Timestamp: " + b.getTimestamp());
             System.out.println("---");
         }
     }
