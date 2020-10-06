@@ -13,12 +13,17 @@ public class Main {
     public static void main(String[] args) {
         //Chain creation
         Chain theChain = new Chain();
-        //Create Genesis Block 
-        Block b = new Block(0, LocalDateTime.now(), new ArrayList(), "0");
-        theChain.addBlock(b);
-        Block b2 = new Block(0, LocalDateTime.now(), new ArrayList(), "0");
-        theChain.addBlock(b2);
-        theChain.listAllBlocks();
+        Miner miner1 = new Miner(new TransactionPool());
+        
+        miner1.ReceiveTransaction(new Transaction("addrx1","addrx2",new String[]{"A"}));
+        miner1.ReceiveTransaction(new Transaction("addrx2","addrx3",new String[]{"B"}));
+        miner1.ReceiveTransaction(new Transaction("addrx3","addrx4",new String[]{"C"}));
 
+        //Miner Generates Candidate Block
+        Block minerBlock = miner1.GenerateCandiateBock();
+        miner1.broadCastBlock(minerBlock);
+        theChain.addBlock(minerBlock);
+
+        theChain.listAllBlocks();
     }
 }
