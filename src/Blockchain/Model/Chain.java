@@ -1,5 +1,6 @@
 package Blockchain.Model;
 
+import Blockchain.Controller.BlockController;
 import Main.Main;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,8 +31,9 @@ public class Chain {
     public void addGenesisBlock() {
         Transaction tx0 = new Transaction("addrx1", "contractAddress", new String[]{"Destiny", "10.0"});
         ArrayList<Transaction> txs = new ArrayList();
-        Block b = new Block(0, LocalDateTime.now(), txs, "0");
-        b.validate(difficulty);
+        //Block b = new Block(0, LocalDateTime.now(), txs, "0");
+        Block b = BlockController.createNewBlock(0, LocalDateTime.now(), txs, "0");
+        BlockController.validate(b, difficulty);
         chain.add(b);
     }
 
@@ -43,7 +45,7 @@ public class Chain {
                 Block ant = this.getLastBlock();
                 b.setPreviousHash(ant.getHash());
                 b.setIndex(chain.size());
-                b.validate(difficulty);
+                BlockController.validate(b, difficulty);
                 chain.add(b);
                 mutex.release();
                 return true;
@@ -58,7 +60,9 @@ public class Chain {
     public Block getLastBlock() {
         return chain.get(chain.size() - 1);
     }
-
+    public int getChainSize(){
+        return this.chain.size();
+    }
     public void listAllBlocks() {
         System.out.println("Lista de bloques - Blockchain" + id + ":");
         System.out.println("---");

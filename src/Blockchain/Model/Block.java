@@ -29,7 +29,6 @@ public class Block {
         this.previousHash = previousHash;
         this.nonce = r.nextInt();
         this.hash = HashUtils.calculateHash(this.toString4Hash());
-        validate(difficulty);
     }
 
     public int getIdCadena() {
@@ -96,13 +95,6 @@ public class Block {
         this.r = r;
     }
 
-    public String getDifficultyString(int difficulty) {
-        StringBuffer s = new StringBuffer();
-        for (int i = 0; i < difficulty; i++) {
-            s.append("0");
-        }
-        return s.toString();
-    }
 
     public void renonce() {
         this.nonce = r.nextInt();
@@ -112,18 +104,6 @@ public class Block {
         this.hash = HashUtils.calculateHash(toString4Hash());
     }
 
-    public String validate(int difficulty) {
-        int j = 0;
-        String s = getDifficultyString(difficulty);
-
-        while (!(hash.substring(0, difficulty).startsWith(s))) {
-            renonce(); //Finde a new nonce
-            rehash();  //Recalculate the hash value
-            j++;
-        }
-        System.out.println(j + " intentos");
-        return hash;
-    }
 
     public String toString4Hash() {
         StringBuffer s = new StringBuffer();
