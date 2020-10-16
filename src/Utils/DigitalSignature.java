@@ -1,4 +1,5 @@
 package Utils;
+
 import Blockchain.Model.Transaction;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -17,7 +18,7 @@ public class DigitalSignature {
     private static final String SPEC = "secp256k1";
     private static final String ALGO = "SHA256withECDSA";
 
-    public static void sign(Transaction tx, String privateKeyString){
+    public static void sign(Transaction tx, String privateKeyString) {
         try {
             EncodedKeySpec privateKeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
             KeyFactory keyFactory = KeyFactory.getInstance("EC");
@@ -40,7 +41,7 @@ public class DigitalSignature {
             Logger.getLogger(DigitalSignature.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public JSONObject sender() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, UnsupportedEncodingException, SignatureException {
 
         ECGenParameterSpec ecSpec = new ECGenParameterSpec(SPEC);
@@ -90,9 +91,10 @@ public class DigitalSignature {
 
     public static KeyPair generateKeyPair() {
         try {
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
-            keyGen.initialize(new ECGenParameterSpec("secp256k1"), new SecureRandom());
-            return keyGen.generateKeyPair();
+            ECGenParameterSpec ecSpec = new ECGenParameterSpec(SPEC);
+            KeyPairGenerator g = KeyPairGenerator.getInstance("EC");
+            g.initialize(ecSpec, new SecureRandom());
+            return g.generateKeyPair();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -131,5 +133,27 @@ public class DigitalSignature {
 
         ecdsa.verify(strByte);
     }
+    
+    public static String firmaTx(Transaction tx, PublicKey publicKey, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, SignatureException, InvalidKeySpecException{
+        Signature ecdsaSign = Signature.getInstance(ALGO);
+        ecdsaSign.initSign(privateKey);
+        ecdsaSign.update(tx.getHash().getBytes("UTF-8"));
+        byte[] signature = ecdsaSign.sign();
+        String sig = Base64.getEncoder().encodeToString(signature);
+        return sig;       
+    }
+    
+    public static boolean checkSign(Transaction tx, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException, UnsupportedEncodingException{
+        Signature ecdsaVerify = Signature.getInstance(ALGO);
+        KeyFactory kf = KeyFactory.getInstance("EC");
 
+        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(Base64.getEncoder().encodeToString(publicKey.getEncoded())));
+        
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        PublicKey publicKeyA = keyFactory.generatePublic(publicKeySpec);
+        ecdsaVerify.initVerify(publicKey);
+        ecdsaVerify.update(tx.getHash().getBytes("UTF-8"));
+        boolean result = ecdsaVerify.verify(Base64.getDecoder().decode(tx.getSignature()));
+        return result;
+    }
 }
