@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class Miner {
     public TransactionPool txPool;
+    //profile
     public Miner(TransactionPool txPool) {
         this.txPool = txPool;
     }

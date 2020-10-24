@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 
+//tiempo simulacioon, tiempo real
+
 public class Main {
     public static final int DIFFICULTY = 3;
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException, UnsupportedEncodingException {
