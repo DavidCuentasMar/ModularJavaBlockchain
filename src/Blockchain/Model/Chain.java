@@ -31,7 +31,7 @@ public class Chain {
     public void addGenesisBlock() {
         Transaction tx0 = new Transaction("addrx1", "contractAddress", new String[]{"Destiny", "10.0"});
         ArrayList<Transaction> txs = new ArrayList();
-        //Block b = new Block(0, LocalDateTime.now(), txs, "0");
+        txs.add(tx0);
         Block b = BlockController.createNewBlock(0, LocalDateTime.now(), txs, "0");
         BlockController.validate(b, difficulty);
         chain.add(b);
@@ -70,6 +70,7 @@ public class Chain {
             System.out.println("Index: " + b.getIndex());
             System.out.println("Previous Hash:" + b.getPreviousHash());
             System.out.println("Hash:" + b.getHash());
+            System.out.println("Merkle Root: " + b.getMerkleRoot());
             System.out.println("Timestamp: " + b.getTimestamp());
             System.out.println("---");
         }

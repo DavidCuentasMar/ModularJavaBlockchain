@@ -10,18 +10,27 @@ public class Block {
 
     int idCadena;
     int index;
-    LocalDateTime timestamp;
-    ArrayList<Transaction> transactions;
+    int nonce;
     String previousHash;
     String hash;
-    int nonce;
+    String merkleRoot;
+    ArrayList<Transaction> transactions;
+    LocalDateTime timestamp;
     Random r;
 
-    public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash) {
-        this(index, timestamp, transactions, previousHash, Main.DIFFICULTY);
+    public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash, String merkleRoot) {
+        this(index, timestamp, transactions, previousHash, Main.DIFFICULTY, merkleRoot);
     }
 
-    public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash, int difficulty) {
+    public String getMerkleRoot() {
+        return merkleRoot;
+    }
+
+    public void setMerkleRoot(String merkleRoot) {
+        this.merkleRoot = merkleRoot;
+    }
+
+    public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash, int difficulty, String merkleRoot) {
         r = new Random();
         this.index = index;
         this.timestamp = timestamp;
@@ -29,6 +38,7 @@ public class Block {
         this.previousHash = previousHash;
         this.nonce = r.nextInt();
         this.hash = HashUtils.calculateHash(this.toString4Hash());
+        this.merkleRoot = merkleRoot;
     }
 
     public int getIdCadena() {
@@ -95,7 +105,6 @@ public class Block {
         this.r = r;
     }
 
-
     public void renonce() {
         this.nonce = r.nextInt();
     }
@@ -103,7 +112,6 @@ public class Block {
     public void rehash() {
         this.hash = HashUtils.calculateHash(toString4Hash());
     }
-
 
     public String toString4Hash() {
         StringBuffer s = new StringBuffer();
