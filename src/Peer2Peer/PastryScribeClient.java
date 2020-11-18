@@ -35,6 +35,7 @@ public class PastryScribeClient implements ScribeClient, Application {
     private PrivateKey privateKey;
     PastryScribeClient client;
     boolean REQUEST_CHAIN = false;
+    CancellableTask publishTask;
 
     public PastryScribeClient(Node node, Chain chain) {
         // Genesis node
@@ -75,13 +76,22 @@ public class PastryScribeClient implements ScribeClient, Application {
         endpoint.register();
         // Miner
         subscribe();
+        
+        // Get Chain
         sendAnycast();
         
+        // Schedule transactions
+        startPublishTask();
     }
     
     private void subscribe() {
         myScribe.subscribe(myTopic, this);
         System.out.println("Subscribed to topic "+myTopic);
+    }
+    
+    public void startPublishTask() {
+        PastryScribeContent content = new PastryScribeContent(endpoint.getLocalNodeHandle(), "nueva Transacción");
+        publishTask = endpoint.scheduleMessage(new PublishContent(content), 10000, 10000);
     }
     
     public void sendMulticast(String msg) {
@@ -151,10 +161,22 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     @Override
     public void deliver(Id id, Message message) {
-        if (message instanceof PastryScribeContent) {
-            sendMulticast(((PastryScribeContent) message).content);
+        if (message instanceof PublishContent) {
+            sendMulticast(((PublishContent) message).content.content);
         }
     }
     
 }
+
+class PublishContent implements Message {
+    PastryScribeContent content;
+
+    public PublishContent(PastryScribeContent content) {
+        this.content = content;
+    }
+    
+    public int getPriority() {
+      return MAX_PRIORITY;
+    }
+  }
 
