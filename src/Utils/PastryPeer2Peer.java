@@ -1,5 +1,7 @@
 package Utils;
 
+import Blockchain.Model.Chain;
+import Blockchain.Model.Miner;
 import Peer2Peer.PastryScribeClient;
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 import rice.Continuation;
 import rice.environment.Environment;
@@ -46,10 +51,18 @@ public class PastryPeer2Peer {
         // used for generating PastContent object Ids.
         // this implements the "hash function" for our DHT
         PastryIdFactory idf = new PastryIdFactory(env);
-    
-        PastryScribeClient app = new PastryScribeClient(node);
-        node.boot(bootaddress);
         
+        PastryScribeClient app;
+        if(bindport == bootaddress.getPort()){
+            Chain theChain = new Chain();
+            app = new PastryScribeClient(node, theChain);
+        }else {
+            app = new PastryScribeClient(node);
+        }
+    
+        
+        node.boot(bootaddress);
+                
         // the node may require sending several messages to fully boot into the ring
         synchronized(node) {
             while(!node.isReady() && !node.joinFailed()) {
@@ -67,13 +80,34 @@ public class PastryPeer2Peer {
         
         // wait 10 seconds
         env.getTimeSource().sleep(10000);
-    
+//        Crear la cadena
         
+//        Generar las n apps
+//        Multicast chain
         
         PastryMenu PastryMenuThread = new PastryMenu(app, node, env);
         PastryMenuThread.start();
     }
 
+}
+
+class BlockchainScribeApp {
+    Chain chain;
+    Miner miner;
+    public PublicKey publicKey;
+    private PrivateKey privateKey;
+    PastryScribeClient client;
+
+    public BlockchainScribeApp(Chain chain, Miner miner) {
+        this.chain = chain;
+        this.miner = miner;
+        KeyPair keyPairA = DigitalSignature.generateKeyPair();
+        publicKey = keyPairA.getPublic();
+        privateKey = keyPairA.getPrivate();
+    }
+//    Programar creación de transacciones
+    
+    
 }
 
 class PastryMenu extends Thread {
@@ -105,7 +139,7 @@ class PastryMenu extends Thread {
                     throw new Exception("Respuesta inválida. Adios");
                 } else if (in == 1) {
                     System.out.println("Ya estás suscrito. Ahora puedes publicar contenido.");
-                    client.subscribe();
+                    //client.subscribe();
                 } else if (in == 2) {
                     System.out.print("Escribe el mensaje: ");
                     String msg = scm.nextLine();

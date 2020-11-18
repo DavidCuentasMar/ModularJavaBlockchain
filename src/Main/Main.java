@@ -52,7 +52,7 @@ public class Main {
         }
 //        
 //        //Chain creation
-//        Chain theChain = new Chain();
+//        Chain theChain = new Chain(); 
 //        
 //        //Miners Creation
 //        Miner miner1 = new Miner(new TransactionPool());

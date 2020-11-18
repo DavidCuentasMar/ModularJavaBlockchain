@@ -1,5 +1,12 @@
 package Peer2Peer;
 
+import Blockchain.Model.Chain;
+import Blockchain.Model.Miner;
+import Blockchain.Model.TransactionPool;
+import Utils.DigitalSignature;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import rice.p2p.commonapi.*;
 import rice.p2p.commonapi.Application;
 import rice.p2p.commonapi.CancellableTask;
@@ -22,20 +29,55 @@ public class PastryScribeClient implements ScribeClient, Application {
     Scribe myScribe;
     Topic myTopic;
     protected Endpoint endpoint;
+    Chain chain = null;
+    Miner miner;
+    public PublicKey publicKey;
+    private PrivateKey privateKey;
+    PastryScribeClient client;
 
-    public PastryScribeClient(Node node) {
+    public PastryScribeClient(Node node, Chain chain) {
+        // Genesis node
+        System.out.println("Nodo génesis: crear cadena");
         this.endpoint = node.buildEndpoint(this, "myinstance");
         myScribe = new ScribeImpl(node, "myScribeInstance");
         // construct the topic
         myTopic = new Topic(new PastryIdFactory(node.getEnvironment()), "Mining");
         System.out.println("myTopic = "+myTopic);
+        this.chain = chain;
+        this.miner = new Miner(new TransactionPool());
+        // Key generation
+        KeyPair keyPairA = DigitalSignature.generateKeyPair();
+        publicKey = keyPairA.getPublic();
+        privateKey = keyPairA.getPrivate();
 
         // now we can receive messages
         endpoint.register();
+        subscribe();
     }
     
-    public void subscribe() {
+    public PastryScribeClient(Node node) {
+        System.out.println("Nodo minero: Solicitando cadena");
+        this.endpoint = node.buildEndpoint(this, "myinstance");
+        myScribe = new ScribeImpl(node, "myScribeInstance");
+        // construct the topic
+        myTopic = new Topic(new PastryIdFactory(node.getEnvironment()), "Mining");
+        System.out.println("myTopic = "+myTopic);
+        this.miner = new Miner(new TransactionPool());
+        
+        // Key generation
+        KeyPair keyPairA = DigitalSignature.generateKeyPair();
+        publicKey = keyPairA.getPublic();
+        privateKey = keyPairA.getPrivate();
+        
+        // now we can receive messages
+        endpoint.register();
+        // Miner
+        subscribe();
+    }
+    
+    private void subscribe() {
         myScribe.subscribe(myTopic, this);
+        System.out.println("Subscribed to topic "+myTopic);
     }
     
     public void sendMulticast(String msg) {
@@ -48,13 +90,23 @@ public class PastryScribeClient implements ScribeClient, Application {
         }
     }
 
+     public void sendAnycast() {
+        System.out.println("Node "+endpoint.getLocalNodeHandle()+" anycasting ");
+        PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(),"Solicitud cadena");
+        myScribe.anycast(myTopic, myMessage); 
+    }
+     
     public void unsuscribe() {
         myScribe.unsubscribe(myTopic, this);
     }
     
     @Override
     public boolean anycast(Topic topic, ScribeContent content) {
-        return true;
+        boolean hasChain = this.chain == null;
+        if(hasChain) {
+            
+        }
+        return hasChain;
     }
 
     @Override
