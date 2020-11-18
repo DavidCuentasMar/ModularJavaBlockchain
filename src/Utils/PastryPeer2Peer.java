@@ -80,13 +80,10 @@ public class PastryPeer2Peer {
         
         // wait 10 seconds
         env.getTimeSource().sleep(10000);
-//        Crear la cadena
         
-//        Generar las n apps
-//        Multicast chain
         
-        PastryMenu PastryMenuThread = new PastryMenu(app, node, env);
-        PastryMenuThread.start();
+//        PastryMenu PastryMenuThread = new PastryMenu(app, node, env);
+//        PastryMenuThread.start();
     }
 
 }

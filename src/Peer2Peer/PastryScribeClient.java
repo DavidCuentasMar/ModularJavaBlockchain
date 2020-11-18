@@ -34,6 +34,7 @@ public class PastryScribeClient implements ScribeClient, Application {
     public PublicKey publicKey;
     private PrivateKey privateKey;
     PastryScribeClient client;
+    boolean REQUEST_CHAIN = false;
 
     public PastryScribeClient(Node node, Chain chain) {
         // Genesis node
@@ -68,11 +69,14 @@ public class PastryScribeClient implements ScribeClient, Application {
         KeyPair keyPairA = DigitalSignature.generateKeyPair();
         publicKey = keyPairA.getPublic();
         privateKey = keyPairA.getPrivate();
+        REQUEST_CHAIN = true;
         
         // now we can receive messages
         endpoint.register();
         // Miner
         subscribe();
+        sendAnycast();
+        
     }
     
     private void subscribe() {
@@ -104,7 +108,7 @@ public class PastryScribeClient implements ScribeClient, Application {
     public boolean anycast(Topic topic, ScribeContent content) {
         boolean hasChain = this.chain == null;
         if(hasChain) {
-            
+            sendMulticast("Cadena 1234");
         }
         return hasChain;
     }
@@ -132,6 +136,9 @@ public class PastryScribeClient implements ScribeClient, Application {
     @Override
     public void deliver(Topic topic, ScribeContent content) {
         System.out.println("MyScribeClient.deliver("+topic+","+content+")");
+        if(REQUEST_CHAIN == true){
+            System.out.println(((PastryScribeContent)content).content);
+        }
         if (((PastryScribeContent)content).from == null) {
           new Exception("Stack Trace").printStackTrace();
         }
