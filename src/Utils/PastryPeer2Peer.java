@@ -51,14 +51,6 @@ public class PastryPeer2Peer {
         // used for generating PastContent object Ids.
         // this implements the "hash function" for our DHT
         PastryIdFactory idf = new PastryIdFactory(env);
-        
-        PastryScribeClient app;
-        if(bindport == bootaddress.getPort()){
-            Chain theChain = new Chain();
-            app = new PastryScribeClient(node, theChain);
-        }else {
-            app = new PastryScribeClient(node);
-        }
     
         
         node.boot(bootaddress);
@@ -81,7 +73,13 @@ public class PastryPeer2Peer {
         // wait 10 seconds
         env.getTimeSource().sleep(10000);
         
-        
+        PastryScribeClient app;
+        if(bindport == bootaddress.getPort()){
+            Chain theChain = new Chain();
+            app = new PastryScribeClient(node, theChain);
+        }else {
+            app = new PastryScribeClient(node);
+        }
 //        PastryMenu PastryMenuThread = new PastryMenu(app, node, env);
 //        PastryMenuThread.start();
     }

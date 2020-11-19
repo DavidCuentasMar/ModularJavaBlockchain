@@ -154,12 +154,13 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     @Override
     public boolean anycast(Topic topic, ScribeContent content) {
-        boolean hasChain = this.chain == null;
+        boolean hasChain = chain != null;
+        System.out.println("HasChain: "+hasChain);
         if (hasChain) {
-            JsonParser js;
-            String chain = JsonParser.chainToJson(this.chain);
-            System.out.println(chain);
-            sendMulticast(chain);
+            //JsonParser js;
+            //String chain = JsonParser.chainToJson(this.chain);
+            System.out.println("Cadena mía");
+            sendMulticast("Cadena mía 1234");
         }
         return hasChain;
     }
