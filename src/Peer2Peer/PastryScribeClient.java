@@ -8,6 +8,7 @@ import Blockchain.Model.Miner;
 import Blockchain.Model.Transaction;
 import Blockchain.Model.TransactionPool;
 import Utils.DigitalSignature;
+import Utils.JsonParser;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -155,8 +156,10 @@ public class PastryScribeClient implements ScribeClient, Application {
     public boolean anycast(Topic topic, ScribeContent content) {
         boolean hasChain = this.chain == null;
         if (hasChain) {
-            //PARSE CHAIN TO JSON 
-            sendMulticast("Cadena 1234");
+            JsonParser js;
+            String chain = JsonParser.chainToJson(this.chain);
+            System.out.println(chain);
+            sendMulticast(chain);
         }
         return hasChain;
     }
