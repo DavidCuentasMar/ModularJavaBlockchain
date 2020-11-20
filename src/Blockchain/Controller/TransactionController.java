@@ -29,6 +29,5 @@ public class TransactionController {
 
     public static void checkTransaction(Transaction tx, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException, UnsupportedEncodingException {
         System.out.println(DigitalSignature.checkSign(tx, publicKey));
-        System.out.println("XXXXXX");
     }
 }

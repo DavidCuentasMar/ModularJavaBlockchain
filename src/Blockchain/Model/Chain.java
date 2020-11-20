@@ -72,6 +72,7 @@ public class Chain {
             System.out.println("Hash:" + b.getHash());
             System.out.println("Merkle Root: " + b.getMerkleRoot());
             System.out.println("Timestamp: " + b.getTimestamp());
+            System.out.println("# of Transactions: " + b.getTransactions().size());
             System.out.println("---");
         }
     }

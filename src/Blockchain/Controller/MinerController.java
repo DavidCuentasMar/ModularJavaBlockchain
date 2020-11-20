@@ -13,23 +13,16 @@ public class MinerController {
                 LocalDateTime.now(),
                 miner.getTxPool().getTransactions(),
                 previousHash);
-        checkTransactions(candidateBlock.getTransactions());
+        miner.getTxPool().setTransactions(new ArrayList());
         BlockController.validate(candidateBlock, Main.Main.DIFFICULTY);
         return candidateBlock;
     }
 
-    private static void checkTransactions(ArrayList<Transaction> transactions) {
-        for (Transaction tx : transactions) {
-            //TO DO: Validity of Transactions
-        }
-    }
-    
-    public static void broadCastBlock(Miner miner, Block candidateBlock){
+    public static void broadCastBlock(Miner miner, Block candidateBlock) {
         //BROAD CAST BLOCK
     }
-    
 
     public static void incommingTransaction(Miner miner, Transaction transaction) {
         TransactionPoolController.addTransaction(miner.getTxPool(), transaction);
     }
-}   
+}
