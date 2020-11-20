@@ -5,8 +5,10 @@
  */
 package Utils;
 
-import java.util.Map;
-import org.json.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -15,10 +17,16 @@ import org.json.JSONObject;
 public class JsonParser {
     
     public static String chainToJson(Object obj) {
-        System.out.println("chain:"+ obj);
-        JSONObject jsonObj = new JSONObject((Map) obj);
-        String str = jsonObj.toString();
-        return str;
+        //Creating the ObjectMapper object
+        ObjectMapper mapper = new ObjectMapper();
+        //Converting the Object to JSONString
+        String jsonString = null;
+        try {
+            jsonString = mapper.writeValueAsString(obj);
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println(jsonString);
+        return jsonString;
     } 
-    
 }
