@@ -2,21 +2,22 @@ package Blockchain.Model;
 
 import Main.Main;
 import Utils.HashUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Block {
 
-    int idCadena;
-    int index;
-    int nonce;
-    String previousHash;
-    String hash;
-    String merkleRoot;
-    ArrayList<Transaction> transactions;
-    LocalDateTime timestamp;
-    Random r;
+    public int idCadena;
+    public int index;
+    public int nonce;
+    public String previousHash;
+    public String hash;
+    public String merkleRoot;
+    public ArrayList<Transaction> transactions;
+    public LocalDateTime timestamp;
+    private Random r;
 
     public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash, String merkleRoot) {
         this(index, timestamp, transactions, previousHash, Main.DIFFICULTY, merkleRoot);
@@ -97,6 +98,7 @@ public class Block {
         this.nonce = nonce;
     }
 
+    @JsonIgnore
     public Random getR() {
         return r;
     }

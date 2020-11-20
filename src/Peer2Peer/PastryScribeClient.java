@@ -117,7 +117,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         sendAnycast();
 
         // Schedule transactions
-        startPublishTask();
+        //startPublishTask();
     }
 
     private void subscribe() {
@@ -131,6 +131,7 @@ public class PastryScribeClient implements ScribeClient, Application {
     }
 
     public void sendMulticast(String msg) {
+        
         if (myScribe.containsTopic(myTopic)) {
             System.out.println("Node " + endpoint.getLocalNodeHandle() + " broadcasting " + msg);
             PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), msg);
@@ -157,10 +158,9 @@ public class PastryScribeClient implements ScribeClient, Application {
         boolean hasChain = chain != null;
         System.out.println("HasChain: "+hasChain);
         if (hasChain) {
-            //JsonParser js;
-            //String chain = JsonParser.chainToJson(this.chain);
-            System.out.println("Cadena mía");
-            sendMulticast("Cadena mía 1234");
+            String jsonChain = JsonParser.chainToJson(this.chain);
+            System.out.println("chain json: "+jsonChain);
+            sendMulticast(jsonChain);
         }
         return hasChain;
     }
@@ -190,6 +190,9 @@ public class PastryScribeClient implements ScribeClient, Application {
         System.out.println("MyScribeClient.deliver(" + topic + "," + content + ")");
         if (REQUEST_CHAIN == true) {
             System.out.println(((PastryScribeContent) content).content);
+            //this.chain = JsonParser.jsonToChain(((PastryScribeContent) content).content);
+            //System.out.println(this.chain.difficulty);
+            //System.out.println(this.chain.id);
         }
         if (((PastryScribeContent) content).from == null) {
             new Exception("Stack Trace").printStackTrace();

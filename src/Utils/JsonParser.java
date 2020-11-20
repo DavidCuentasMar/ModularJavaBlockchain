@@ -5,6 +5,7 @@
  */
 package Utils;
 
+import Blockchain.Model.Chain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.logging.Level;
@@ -29,4 +30,15 @@ public class JsonParser {
         System.out.println(jsonString);
         return jsonString;
     } 
+    
+    public static Chain jsonToChain(String jsonString){
+        ObjectMapper objectMapper = new ObjectMapper();
+        Chain newChain = null;
+        try {
+            newChain = objectMapper.readValue(jsonString, Chain.class);
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return newChain;
+    }
 }

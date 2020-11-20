@@ -12,9 +12,9 @@ public class Chain {
 
     private static int idCount = 0;
     private static Semaphore mutex = new Semaphore(1);
-    ArrayList<Block> chain;
-    int id;
-    int difficulty;
+    public ArrayList<Block> chain;
+    public int id;
+    public int difficulty;
 
     public Chain() {
         this(Main.DIFFICULTY);
