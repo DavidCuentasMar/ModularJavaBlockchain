@@ -119,6 +119,5 @@ public class Main {
 
             theChain.listAllBlocks();
         }
-
     }
 }

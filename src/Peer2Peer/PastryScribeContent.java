@@ -15,6 +15,7 @@ import rice.p2p.scribe.ScribeContent;
 public class PastryScribeContent implements ScribeContent{
     NodeHandle from;
     String content;
+    
 
     public PastryScribeContent(NodeHandle from, String content) {
         this.from = from;

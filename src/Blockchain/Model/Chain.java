@@ -28,7 +28,7 @@ public class Chain {
         System.out.println("Blockchain " + id + " created successfuly!");
     }
 
-    public void addGenesisBlock() {
+    public void addGenesisBlock() { 
         Transaction tx0 = new Transaction("addrx1", "contractAddress", new String[]{"Destiny", "10.0"});
         ArrayList<Transaction> txs = new ArrayList();
         txs.add(tx0);
@@ -57,7 +57,7 @@ public class Chain {
         return false;
     }
 
-    public Block getLastBlock() {
+    public Block getLastBlock() { 
         return chain.get(chain.size() - 1);
     }
     public int getChainSize(){
