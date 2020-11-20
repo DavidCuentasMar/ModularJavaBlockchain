@@ -31,7 +31,7 @@ public class Main {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException, UnsupportedEncodingException, Exception {
         Boolean blockchainLogicToTest = false;
-        if (blockchainLogicToTest) {
+        if (!blockchainLogicToTest) {
             Environment env = new Environment();
 
             env.getParameters().setString("nat_search_policy", "never");

@@ -126,8 +126,8 @@ public class PastryScribeClient implements ScribeClient, Application {
     }
 
     public void startPublishTask() {
-        PastryScribeContent content = new PastryScribeContent(endpoint.getLocalNodeHandle(), "nueva Transacción");
-        publishTask = endpoint.scheduleMessage(new PublishContent(content), 10000, 10000);
+        //PastryScribeContent content = new PastryScribeContent(endpoint.getLocalNodeHandle(), "nueva Transacción");
+        //publishTask = endpoint.scheduleMessage(new PublishContent(content), 10000, 10000);
     }
 
     public void sendMulticast(String msg) {

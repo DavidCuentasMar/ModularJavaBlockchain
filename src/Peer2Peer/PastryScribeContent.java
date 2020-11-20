@@ -12,18 +12,27 @@ import rice.p2p.scribe.ScribeContent;
  *
  * @author Yennifer Herrera
  */
-public class PastryScribeContent implements ScribeContent{
-    NodeHandle from;
-    String content;
-    
+public class PastryScribeContent implements ScribeContent {
 
-    public PastryScribeContent(NodeHandle from, String content) {
+    public NodeHandle from;
+    public String content;
+    public enum contentType {
+        TRANSACTION,
+        BLOCK,
+        CHAIN,
+        TEXT
+    }
+    public contentType type;
+
+
+    public PastryScribeContent(NodeHandle from, String content, contentType type) {
         this.from = from;
         this.content = content;
+        this.type = type;
     }
-    
+
     @Override
     public String toString() {
-        return "The content is "+content+" from: "+from;
+        return "The content is " + content + " from: " + from;
     }
 }
