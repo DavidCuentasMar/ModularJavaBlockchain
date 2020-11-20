@@ -112,7 +112,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         endpoint.register();
         // Miner
         subscribe();
-                       
+
         // Get Chain
         sendAnycast();
 
@@ -131,7 +131,7 @@ public class PastryScribeClient implements ScribeClient, Application {
     }
 
     public void sendMulticast(String msg) {
-        
+
         if (myScribe.containsTopic(myTopic)) {
             System.out.println("Node " + endpoint.getLocalNodeHandle() + " broadcasting " + msg);
             PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), msg);
@@ -145,7 +145,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         System.out.println("Node " + endpoint.getLocalNodeHandle() + " anycasting ");
         PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), "Solicitud cadena");
         myScribe.anycast(myTopic, myMessage);
-        
+
         
     }
 
@@ -159,7 +159,6 @@ public class PastryScribeClient implements ScribeClient, Application {
         System.out.println("HasChain: "+hasChain);
         if (hasChain) {
             String jsonChain = JsonParser.chainToJson(this.chain);
-            System.out.println("chain json: "+jsonChain);
             sendMulticast(jsonChain);
         }
         return hasChain;
@@ -190,9 +189,11 @@ public class PastryScribeClient implements ScribeClient, Application {
         System.out.println("MyScribeClient.deliver(" + topic + "," + content + ")");
         if (REQUEST_CHAIN == true) {
             System.out.println(((PastryScribeContent) content).content);
-            //this.chain = JsonParser.jsonToChain(((PastryScribeContent) content).content);
-            //System.out.println(this.chain.difficulty);
-            //System.out.println(this.chain.id);
+            boolean hasChain = chain != null;
+            if (!hasChain) {
+                this.chain = JsonParser.jsonToChain(((PastryScribeContent) content).content);
+                System.out.println("id: "+ this.chain.id);
+            }
         }
         if (((PastryScribeContent) content).from == null) {
             new Exception("Stack Trace").printStackTrace();

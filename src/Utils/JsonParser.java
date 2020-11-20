@@ -27,7 +27,6 @@ public class JsonParser {
         } catch (JsonProcessingException ex) {
             Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println(jsonString);
         return jsonString;
     } 
     
@@ -39,6 +38,7 @@ public class JsonParser {
         } catch (JsonProcessingException ex) {
             Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("process correct !!!!!!!!!!!");
         return newChain;
     }
 }
