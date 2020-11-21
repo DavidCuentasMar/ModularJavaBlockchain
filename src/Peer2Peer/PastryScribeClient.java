@@ -17,6 +17,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import rice.p2p.commonapi.*;
@@ -50,8 +51,9 @@ public class PastryScribeClient implements ScribeClient, Application {
     PastryScribeClient client;
     boolean REQUEST_CHAIN = false;
     CancellableTask publishTask;
+    public String publicKeyStr;
 
-    public PastryScribeClient(Node node, Chain chain) {
+    public PastryScribeClient(Node node, Boolean isGenesis) {
         // Genesis node
         System.out.println("Nodo génesis: crear cadena");
         this.endpoint = node.buildEndpoint(this, "myinstance");
@@ -59,32 +61,25 @@ public class PastryScribeClient implements ScribeClient, Application {
         // construct the topic
         myTopic = new Topic(new PastryIdFactory(node.getEnvironment()), "Mining");
         System.out.println("myTopic = " + myTopic);
-        this.chain = chain;
+        if (isGenesis) {
+            this.chain = new Chain();
+        }
         this.miner = new Miner(new TransactionPool());
         // Key generation
         KeyPair keyPairA = DigitalSignature.generateKeyPair();
         publicKey = keyPairA.getPublic();
         privateKey = keyPairA.getPrivate();
+        this.publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
         try {
-            Transaction tx1 = new Transaction("addrx1", "addrx2", new String[]{"A"});
-            TransactionController.signTransaction(tx1, publicKey, privateKey);
-            try {
-                TransactionController.checkTransaction(tx1, publicKey);
-            } catch (SignatureException ex) {
-                Logger.getLogger(PastryScribeClient.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvalidKeyException ex) {
-                Logger.getLogger(PastryScribeClient.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(PastryScribeClient.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Transaction tx1 = new Transaction(publicKeyStr, "addrx2", new String[]{"A"});
+            TransactionController.signTransaction(tx1, privateKey);
+            TransactionController.checkTransactionSignature(tx1);
             MinerController.incommingTransaction(miner, tx1);
-            Block minerBlock = MinerController.GenerateCandiateBock(miner, chain.getChainSize(), chain.getLastBlock().getHash());
+            Block minerBlock = MinerController.GenerateCandiateBock(miner, chain);
             chain.addBlock(minerBlock);
             chain.listAllBlocks();
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(PastryScribeClient.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidKeySpecException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(PastryScribeClient.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -145,7 +140,6 @@ public class PastryScribeClient implements ScribeClient, Application {
         PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), "Solicitud cadena", PastryScribeContent.contentType.TEXT);
         myScribe.anycast(myTopic, myMessage);
 
-        
     }
 
     public void unsuscribe() {
@@ -155,7 +149,7 @@ public class PastryScribeClient implements ScribeClient, Application {
     @Override
     public boolean anycast(Topic topic, ScribeContent content) {
         boolean hasChain = chain != null;
-        System.out.println("HasChain: "+hasChain);
+        System.out.println("HasChain: " + hasChain);
         if (hasChain) {
             String jsonChain = JsonParser.chainToJson(this.chain);
             sendMulticast(jsonChain);
@@ -186,13 +180,13 @@ public class PastryScribeClient implements ScribeClient, Application {
     @Override
     public void deliver(Topic topic, ScribeContent content) {
         System.out.println("MyScribeClient.deliver(" + topic + "," + content + ")");
-        if (REQUEST_CHAIN == true && ( ((PastryScribeContent)content).type == PastryScribeContent.contentType.CHAIN)) {
+        if (REQUEST_CHAIN == true && (((PastryScribeContent) content).type == PastryScribeContent.contentType.CHAIN)) {
             System.out.println("EPA");
             System.out.println(((PastryScribeContent) content).content);
             boolean hasChain = chain != null;
             if (!hasChain) {
                 this.chain = JsonParser.jsonToChain(((PastryScribeContent) content).content);
-                System.out.println("id: "+ this.chain.id);
+                System.out.println("id: " + this.chain.id);
             }
         }
         if (((PastryScribeContent) content).from == null) {

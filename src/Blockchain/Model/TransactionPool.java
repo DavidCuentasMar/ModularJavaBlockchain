@@ -25,5 +25,9 @@ public class TransactionPool {
     public void setTransactions(ArrayList<Transaction> transactions) {
         this.transactions = transactions;
     }
+
+    public void clearTxPool() {
+        this.transactions.clear();
+    }
     
 }
