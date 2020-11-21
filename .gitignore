@@ -63,6 +63,8 @@ local.properties
 ##############################
 ## NetBeans
 ##############################
+nbproject/build-impl.xml
+nbproject/genfiles.properties
 nbproject/private/
 build/
 nbbuild/

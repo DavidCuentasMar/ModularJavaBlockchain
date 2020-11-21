@@ -2,23 +2,46 @@ package Blockchain.Model;
 
 import Main.Main;
 import Utils.HashUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Block {
 
-    int idCadena;
-    int index;
-    int nonce;
-    String previousHash;
-    String hash;
-    String merkleRoot;
-    ArrayList<Transaction> transactions;
-    LocalDateTime timestamp;
-    Random r;
+    public int idCadena;
+    public int index;
+    public int nonce;
+    public String previousHash;
+    public String hash;
+    public String merkleRoot;
+    @JsonDeserialize(as=ArrayList.class, contentAs=Transaction.class)
+    public ArrayList<Transaction> transactions;
+    //@JsonDeserialize(as = LocalDateTime.class)
+    @JsonIgnore
+    public LocalDateTime timestamp;
+    private Random r;
 
-    public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash, String merkleRoot) {
+    @JsonCreator
+    public Block(@JsonProperty("idCadena") int idCadena, @JsonProperty("index") int index, @JsonProperty("nonce") int nonce,
+            @JsonProperty("previousHash") String previousHash, @JsonProperty("hash") String hash, @JsonProperty("merkleRoot") String merkleRoot,
+            @JsonProperty("transactions") ArrayList transactions, @JsonProperty("timestamp") LocalDateTime timestamp) {
+        this.idCadena = idCadena;
+        this.index = index;
+        this.nonce = nonce;
+        this.previousHash = previousHash;
+        this.hash = hash;
+        this.merkleRoot = merkleRoot;
+        this.transactions = transactions;
+        this.timestamp = timestamp;
+
+    }
+
+    public Block(int index, LocalDateTime timestamp, ArrayList transactions,
+            String previousHash, String merkleRoot) {
         this(index, timestamp, transactions, previousHash, Main.DIFFICULTY, merkleRoot);
     }
 
@@ -57,10 +80,13 @@ public class Block {
         this.index = index;
     }
 
+    @JsonIgnore
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
-
+    
+    //@JsonProperty("timestamp")
+    @JsonIgnore
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
@@ -69,6 +95,7 @@ public class Block {
         return transactions;
     }
 
+    @JsonProperty("transactions")
     public void setTransactions(ArrayList<Transaction> transactions) {
         this.transactions = transactions;
     }
@@ -97,6 +124,7 @@ public class Block {
         this.nonce = nonce;
     }
 
+    @JsonIgnore
     public Random getR() {
         return r;
     }

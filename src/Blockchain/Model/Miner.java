@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Miner {
-    public TransactionPool txPool;
+    private TransactionPool txPool;
     //profile
     public Miner(TransactionPool txPool) {
         this.txPool = txPool;

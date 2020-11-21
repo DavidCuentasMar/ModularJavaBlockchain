@@ -28,7 +28,7 @@ public class BlockController {
             block.rehash();  //Recalculate the hash value
             j++;
         }
-        System.out.println(j + " intentos");
+        //System.out.println(j + " intentos");
         return block.getHash();
     }
 
