@@ -133,27 +133,39 @@ public class DigitalSignature {
 
         ecdsa.verify(strByte);
     }
-    
-    public static String firmaTx(Transaction tx, PublicKey publicKey, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, SignatureException, InvalidKeySpecException{
+
+    public static String firmaTx(Transaction tx, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, SignatureException, InvalidKeySpecException {
         Signature ecdsaSign = Signature.getInstance(ALGO);
         ecdsaSign.initSign(privateKey);
         ecdsaSign.update(tx.getHash().getBytes("UTF-8"));
         byte[] signature = ecdsaSign.sign();
         String sig = Base64.getEncoder().encodeToString(signature);
-        return sig;       
+        return sig;
     }
-    
-    public static boolean checkSign(Transaction tx, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException, UnsupportedEncodingException{
-        Signature ecdsaVerify = Signature.getInstance(ALGO);
-        KeyFactory kf = KeyFactory.getInstance("EC");
 
-        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(Base64.getEncoder().encodeToString(publicKey.getEncoded())));
-        
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
-        PublicKey publicKeyA = keyFactory.generatePublic(publicKeySpec);
-        ecdsaVerify.initVerify(publicKey);
-        ecdsaVerify.update(tx.getHash().getBytes("UTF-8"));
-        boolean result = ecdsaVerify.verify(Base64.getDecoder().decode(tx.getSignature()));
+    public static boolean checkSign(Transaction tx) {
+        boolean result = false;
+        try {
+            Signature ecdsaVerify = Signature.getInstance(ALGO);
+            KeyFactory kf = KeyFactory.getInstance("EC");
+
+            EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(tx.getFrom_address()));
+
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
+            PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
+            ecdsaVerify.initVerify(publicKey);
+            ecdsaVerify.update(tx.getHash().getBytes("UTF-8"));
+            if (tx.getSignature() != null) {
+                result = ecdsaVerify.verify(Base64.getDecoder().decode(tx.getSignature()));
+            }
+        } catch (Exception ex) {
+            result = false;
+        }
+        if(result){
+            //System.out.println(tx.hash.subSequence(tx.hash.length()-7, tx.hash.length())+ " [Valid Transaction]");
+        }else{
+            //System.out.println(tx.hash.subSequence(tx.hash.length()-7, tx.hash.length())+ " [Invaid Transaction]");
+        }
         return result;
     }
 }

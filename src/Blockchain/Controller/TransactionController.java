@@ -14,9 +14,9 @@ import java.util.logging.Logger;
 
 public class TransactionController {
 
-    public static void signTransaction(Transaction tx, PublicKey publicKey, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static void signTransaction(Transaction tx, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
         try {
-            String signatureTx = DigitalSignature.firmaTx(tx, publicKey, privateKey);
+            String signatureTx = DigitalSignature.firmaTx(tx, privateKey);
             tx.setSignature(signatureTx);
         } catch (InvalidKeyException ex) {
             Logger.getLogger(TransactionController.class.getName()).log(Level.SEVERE, null, ex);
@@ -27,7 +27,7 @@ public class TransactionController {
         }
     }
 
-    public static void checkTransaction(Transaction tx, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException, UnsupportedEncodingException {
-        System.out.println(DigitalSignature.checkSign(tx, publicKey));
+    public static boolean checkTransactionSignature(Transaction tx){
+        return DigitalSignature.checkSign(tx);
     }
 }

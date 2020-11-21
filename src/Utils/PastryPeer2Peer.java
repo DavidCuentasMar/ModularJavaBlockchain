@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Base64;
 
 import rice.Continuation;
 import rice.environment.Environment;
@@ -75,9 +76,7 @@ public class PastryPeer2Peer {
         
         PastryScribeClient app;
         if(bindport == bootaddress.getPort()){
-            Chain theChain = new Chain();
-            theChain.addGenesisBlock();
-            app = new PastryScribeClient(node, theChain);
+            app = new PastryScribeClient(node, true);
         }else {
             app = new PastryScribeClient(node);
         }

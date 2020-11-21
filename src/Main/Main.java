@@ -1,5 +1,6 @@
 package Main;
 
+import Blockchain.Controller.BlockController;
 import Blockchain.Controller.MinerController;
 import Blockchain.Controller.TransactionController;
 import Blockchain.Model.Block;
@@ -26,9 +27,10 @@ import rice.environment.Environment;
 //tiempo simulacioon, tiempo real
 public class Main {
 
-    public static final int DIFFICULTY = 3;
+    public static final int DIFFICULTY = 1;
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException, UnsupportedEncodingException, Exception {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException,
+            InvalidKeyException, UnsupportedEncodingException, Exception {
         Boolean blockchainLogicToTest = true;
         if (!blockchainLogicToTest) {
             Environment env = new Environment();
@@ -54,68 +56,63 @@ public class Main {
             }
         } else {
 
-            //Chain creation
-            Chain theChain = new Chain();
-            theChain.addGenesisBlock();
-
-            //Miners Creation
-            Miner miner1 = new Miner(new TransactionPool());
-            Miner miner2 = new Miner(new TransactionPool());
-
-            //KeyPair Creation
+            // KeyPair Creation
             KeyPair keyPairA = DigitalSignature.generateKeyPair();
             PublicKey publicKey = keyPairA.getPublic();
             PrivateKey privateKey = keyPairA.getPrivate();
+            String publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
-            //Transaction Creation
-            Transaction tx1 = new Transaction("addrx1", "addrx2", new String[]{"A"});
-            Transaction tx2 = new Transaction("addrx2", "addrx3", new String[]{"B"});
-            Transaction tx3 = new Transaction("addrx3", "addrx4", new String[]{"C"});
-            Transaction tx4 = new Transaction("addrx4", "addrx5", new String[]{"D"});
-            Transaction tx8 = new Transaction("addrx8", "addrx9", new String[]{"H"});
-            Transaction tx9 = new Transaction("addrx9", "addrx10", new String[]{"I"});
-            Transaction tx10 = new Transaction("addrx10", "addrx11", new String[]{"J"});
+            // Chain creation
+            Chain theChain = new Chain();
+            theChain.addGenesisBlock(publicKeyStr, privateKey);
+
+            // Miners Creation
+            Miner miner1 = new Miner(new TransactionPool());
+            Miner miner2 = new Miner(new TransactionPool());
+
+            // Transaction Creation
+            Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[] { "addrx2", "10.0" });
+            Transaction tx2 = new Transaction(publicKeyStr, "JavaContractCoin", new String[] { "addrx3", "10.0" });
 
             ArrayList<Transaction> transactionGroupOne = new ArrayList();
             transactionGroupOne.add(tx1);
-            transactionGroupOne.add(tx2);
-            transactionGroupOne.add(tx3);
-            transactionGroupOne.add(tx4);
 
             ArrayList<Transaction> transactionGroupTwo = new ArrayList();
-            transactionGroupTwo.add(tx8);
-            transactionGroupTwo.add(tx9);
-            transactionGroupTwo.add(tx10);
+            transactionGroupTwo.add(tx2);
 
-            //Signing Transaction
+            // Signing Transaction
             for (Transaction tx : transactionGroupOne) {
-                TransactionController.signTransaction(tx, publicKey, privateKey);
+                TransactionController.signTransaction(tx, privateKey);
             }
 
-            //Check Transaction
-            for (Transaction tx : transactionGroupOne) {
-                TransactionController.checkTransaction(tx, publicKey);
+            // Signing Transaction
+            for (Transaction tx : transactionGroupTwo) {
+                TransactionController.signTransaction(tx2, privateKey);
             }
 
-            //Sending Transaction to Miners
+            // Sending Transaction to Miners (Broadcast TXS)
             for (Transaction tx : transactionGroupOne) {
                 MinerController.incommingTransaction(miner1, tx);
             }
 
-            //Miner Generates Candidate Block
-            Block minerBlock = MinerController.GenerateCandiateBock(miner1, theChain.getChainSize(), theChain.getLastBlock().getHash());
+            // Miner Generates Candidate Block
+            Block minerBlock = MinerController.GenerateCandiateBock(miner1, theChain);
             MinerController.broadCastBlock(miner1, minerBlock);
-            theChain.addBlock(minerBlock);
-
-            //Sending Transaction to Miners
+            if (minerBlock != null) {
+                theChain.addBlock(minerBlock);
+            }
+            System.out.println(miner1.getTxPool().getTransactions().size());
+            // Sending Transaction to Miners (Broadcast TXS)
             for (Transaction tx : transactionGroupTwo) {
                 MinerController.incommingTransaction(miner1, tx);
             }
-
-            //Miner Generates Candidate Block
-            Block minerBlock2 = MinerController.GenerateCandiateBock(miner1, theChain.getChainSize(), theChain.getLastBlock().getHash());
-            MinerController.broadCastBlock(miner1, minerBlock2);
-            theChain.addBlock(minerBlock2);
+            System.out.println(miner1.getTxPool().getTransactions().size());
+            // Miner Generates Candidate Block
+            minerBlock = MinerController.GenerateCandiateBock(miner1, theChain);
+            MinerController.broadCastBlock(miner1, minerBlock);
+            if (minerBlock != null) {
+                theChain.addBlock(minerBlock);
+            }
 
             theChain.listAllBlocks();
         }
