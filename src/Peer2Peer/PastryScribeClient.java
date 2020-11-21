@@ -109,9 +109,10 @@ public class PastryScribeClient implements ScribeClient, Application {
         subscribe();
 
         // Get Chain
-        // sendAnycast();
         requestChain();
 
+        Transaction tx1 = new Transaction("addrx1", "addrx2", new String[] { "A" });
+        sendTransaction(JsonParser.transactionToJson(tx1));
         // Schedule transactions
         // startPublishTask();
     }
@@ -153,17 +154,24 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     @Override
     public boolean anycast(Topic topic, ScribeContent msg) {
-        if (((PastryScribeContent) msg).content.equals("CHAIN_REQUEST")
-                && (((PastryScribeContent) msg).type == PastryScribeContent.contentType.TEXT)) {
-            boolean hasChain = chain != null;
-            System.out.println("HasChain: " + hasChain);
-            if (hasChain) {
-                String jsonChain = JsonParser.chainToJson(this.chain);
-                sendChain(jsonChain);
-            }
-            return hasChain;
+        if (isChainRequest(((PastryScribeContent) msg))) {
+            return handlerChainRequest();
         }
         return false;
+    }
+
+    public boolean isChainRequest(PastryScribeContent msg) {
+        return msg.content.equals("CHAIN_REQUEST") && (msg.type == PastryScribeContent.contentType.TEXT);
+    }
+
+    public boolean handlerChainRequest() {
+        boolean hasChain = chain != null;
+        System.out.println("HasChain: " + hasChain);
+        if (hasChain) {
+            String jsonChain = JsonParser.chainToJson(this.chain);
+            sendChain(jsonChain);
+        }
+        return hasChain;
     }
 
     @Override
@@ -188,24 +196,54 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     @Override
     public void deliver(Topic topic, ScribeContent msg) {
-        System.out.println("MyScribeClient.deliver(" + topic + "," + msg + ")");
-        if (REQUEST_CHAIN == true && (((PastryScribeContent) msg).type == PastryScribeContent.contentType.CHAIN)) {
-            System.out.println("EPA");
-            boolean hasChain = chain == null;
-            if (hasChain) {
-                // this.chain = JsonParser.jsonToChain(((PastryScribeContent) content).content);
-                // System.out.println("id: "+ this.chain.id);
-                System.out.println(((PastryScribeContent) msg).content);
-            }
+        if (isChainDelivery((PastryScribeContent) msg)) {
+            handlerChainDelivery((PastryScribeContent) msg);
+        } else if (isBlockDelivery((PastryScribeContent) msg)) {
+            handlerBlockDelivery((PastryScribeContent) msg);
+        } else if (isTransactionDelivery((PastryScribeContent) msg)) {
+            handlerTransactionDelivery((PastryScribeContent) msg);
         }
-
-        // TODO Deliver Transaction
-
-        // TODO Deliver Block
 
         if (((PastryScribeContent) msg).from == null) {
             new Exception("Stack Trace").printStackTrace();
         }
+    }
+
+    public boolean isChainDelivery(PastryScribeContent msg) {
+        return (this.REQUEST_CHAIN == true && (msg.type == PastryScribeContent.contentType.CHAIN));
+    }
+
+    public void handlerChainDelivery(PastryScribeContent chain) {
+        boolean hasChain = this.chain == null;
+        if (hasChain) {
+            this.chain = JsonParser.jsonToChain(chain.content);
+            System.out.println("Cadena obtenida");
+        }
+    }
+
+    public boolean isBlockDelivery(PastryScribeContent msg) {
+        return msg.type == PastryScribeContent.contentType.BLOCK;
+    }
+
+    public void handlerBlockDelivery(PastryScribeContent block) {
+        Block newBlock = JsonParser.jsonToBlock(block.content);
+        if (!newBlock.previousHash.isEmpty()) {
+            System.out.println("Before size: " + this.chain.getChainSize());
+            this.chain.addBlock(newBlock);
+            System.out.println("Current size: " + this.chain.getChainSize());
+            System.out.println("Block added to chain");
+        }
+    }
+
+    public boolean isTransactionDelivery(PastryScribeContent msg) {
+        return msg.type == PastryScribeContent.contentType.TRANSACTION;
+    }
+
+    public void handlerTransactionDelivery(PastryScribeContent trans) {
+        Transaction tx = JsonParser.jsonToTransaction(trans.content);
+        System.out.println("Transaction hash: " + tx.hash);
+        this.miner.getTxPool().addTransaction(tx);
+        System.out.println("Transaction added to miner pool");
     }
 
     @Override
@@ -236,6 +274,28 @@ public class PastryScribeClient implements ScribeClient, Application {
             System.out.println("Node " + endpoint.getLocalNodeHandle() + " sending chain");
             PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), chain,
                     PastryScribeContent.contentType.CHAIN);
+            myScribe.publish(myTopic, myMessage);
+        } else {
+            System.out.println("Ups. Parece que aún no te has suscrito.");
+        }
+    }
+
+    public void sendTransaction(String trans) {
+        if (myScribe.containsTopic(myTopic)) {
+            System.out.println("Node " + endpoint.getLocalNodeHandle() + " sending transaction");
+            PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), trans,
+                    PastryScribeContent.contentType.TRANSACTION);
+            myScribe.publish(myTopic, myMessage);
+        } else {
+            System.out.println("Ups. Parece que aún no te has suscrito.");
+        }
+    }
+
+    public void sendBlock(String block) {
+        if (myScribe.containsTopic(myTopic)) {
+            System.out.println("Node " + endpoint.getLocalNodeHandle() + " sending block");
+            PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), block,
+                    PastryScribeContent.contentType.BLOCK);
             myScribe.publish(myTopic, myMessage);
         } else {
             System.out.println("Ups. Parece que aún no te has suscrito.");
