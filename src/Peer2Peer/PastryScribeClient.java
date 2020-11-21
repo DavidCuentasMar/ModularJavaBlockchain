@@ -199,6 +199,11 @@ public class PastryScribeClient implements ScribeClient, Application {
                 System.out.println(((PastryScribeContent) msg).content);
             }
         }
+        
+        // TODO Deliver Transaction
+        
+        // TODO Deliver Block
+        
         if (((PastryScribeContent) msg).from == null) {
             new Exception("Stack Trace").printStackTrace();
         }

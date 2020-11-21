@@ -18,9 +18,10 @@ public class Block {
     public String previousHash;
     public String hash;
     public String merkleRoot;
-    @JsonDeserialize(as = Transaction.class)
+    @JsonDeserialize(as=ArrayList.class, contentAs=Transaction.class)
     public ArrayList<Transaction> transactions;
-    @JsonDeserialize(as = LocalDateTime.class)
+    //@JsonDeserialize(as = LocalDateTime.class)
+    @JsonIgnore
     public LocalDateTime timestamp;
     private Random r;
 
@@ -79,11 +80,13 @@ public class Block {
         this.index = index;
     }
 
+    @JsonIgnore
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
     
-    @JsonProperty("timestamp")
+    //@JsonProperty("timestamp")
+    @JsonIgnore
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }

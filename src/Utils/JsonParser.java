@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  * @author will
  */
 public class JsonParser {
-    
+
     public static String chainToJson(Chain chain) {
         //Creating the ObjectMapper object
         ObjectMapper mapper = new ObjectMapper();
@@ -35,14 +35,14 @@ public class JsonParser {
             Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
         }
         return jsonString;
-    } 
-    
-    public static Chain jsonToChain(String jsonString){
+    }
+
+    public static Chain jsonToChain(String jsonString) {
         ObjectMapper objectMapper = new ObjectMapper();
         Chain newChain = null;
         CollectionType blockReference = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Block.class);
         CollectionType transReference = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Transaction.class);
-        
+
         try {
             objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             String[] data = objectMapper.convertValue(jsonString, String[].class);
@@ -61,7 +61,7 @@ public class JsonParser {
         System.out.println("process correct !!!!!!!!!!!");
         return newChain;
     }
-    
+
     public static String transactionToJson(Transaction trans) {
         //Creating the ObjectMapper object
         ObjectMapper mapper = new ObjectMapper();
@@ -74,11 +74,11 @@ public class JsonParser {
         }
         return jsonString;
     }
-    
-    public static Transaction jsonToTransaction(String jsonString){
+
+    public static Transaction jsonToTransaction(String jsonString) {
         ObjectMapper objectMapper = new ObjectMapper();
         Transaction trans = null;
-               
+
         try {
             objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             String[] data = objectMapper.convertValue(jsonString, String[].class);
@@ -89,4 +89,30 @@ public class JsonParser {
         }
         return trans;
     }
+
+    public static String blockToJson(Block block) {
+        //Creating the ObjectMapper object
+        ObjectMapper mapper = new ObjectMapper();
+        //Converting the Object to JSONString
+        String jsonString = null;
+        try {
+            jsonString = mapper.writeValueAsString(block);
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return jsonString;
+    }
+
+    public static Block jsonToBlock(String jsonString) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Block block = null;
+        try {
+            block = objectMapper.readValue(jsonString, Block.class);
+            System.out.println("jsonToBlock correct");
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return block;
+    }
+
 }
