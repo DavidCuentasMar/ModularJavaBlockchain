@@ -18,15 +18,31 @@ public class Block {
     public String previousHash;
     public String hash;
     public String merkleRoot;
-    @JsonDeserialize(as=Transaction.class)
+    @JsonDeserialize(as = Transaction.class)
     public ArrayList<Transaction> transactions;
+    @JsonDeserialize(as = LocalDateTime.class)
     public LocalDateTime timestamp;
     private Random r;
 
     @JsonCreator
-    public Block(@JsonProperty("index") int index, @JsonProperty("timestamp") LocalDateTime timestamp, @JsonProperty("transactions") ArrayList transactions, @JsonProperty("previousHash") String previousHash, @JsonProperty("merkleRoot") String merkleRoot) {
+    public Block(@JsonProperty("idCadena") int idCadena, @JsonProperty("index") int index, @JsonProperty("nonce") int nonce,
+            @JsonProperty("previousHash") String previousHash, @JsonProperty("hash") String hash, @JsonProperty("merkleRoot") String merkleRoot,
+            @JsonProperty("transactions") ArrayList transactions, @JsonProperty("timestamp") LocalDateTime timestamp) {
+        this.idCadena = idCadena;
+        this.index = index;
+        this.nonce = nonce;
+        this.previousHash = previousHash;
+        this.hash = hash;
+        this.merkleRoot = merkleRoot;
+        this.transactions = transactions;
+        this.timestamp = timestamp;
+
+    }
+
+    public Block(int index, LocalDateTime timestamp, ArrayList transactions,
+            String previousHash, String merkleRoot) {
         this(index, timestamp, transactions, previousHash, Main.DIFFICULTY, merkleRoot);
-    }    
+    }
 
     public String getMerkleRoot() {
         return merkleRoot;
@@ -66,7 +82,8 @@ public class Block {
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
-
+    
+    @JsonProperty("timestamp")
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
@@ -75,6 +92,7 @@ public class Block {
         return transactions;
     }
 
+    @JsonProperty("transactions")
     public void setTransactions(ArrayList<Transaction> transactions) {
         this.transactions = transactions;
     }
