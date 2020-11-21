@@ -114,8 +114,9 @@ public class PastryScribeClient implements ScribeClient, Application {
         subscribe();
 
         // Get Chain
-        sendAnycast();
-
+        //sendAnycast();
+        requestChain();
+        
         // Schedule transactions
         //startPublishTask();
     }
@@ -145,7 +146,6 @@ public class PastryScribeClient implements ScribeClient, Application {
         PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), "Solicitud cadena", PastryScribeContent.contentType.TEXT);
         myScribe.anycast(myTopic, myMessage);
 
-        
     }
 
     public void unsuscribe() {
@@ -153,14 +153,18 @@ public class PastryScribeClient implements ScribeClient, Application {
     }
 
     @Override
-    public boolean anycast(Topic topic, ScribeContent content) {
-        boolean hasChain = chain != null;
-        System.out.println("HasChain: "+hasChain);
-        if (hasChain) {
-            String jsonChain = JsonParser.chainToJson(this.chain);
-            sendMulticast(jsonChain);
+    public boolean anycast(Topic topic, ScribeContent msg) {
+        if (((PastryScribeContent) msg).content.equals("CHAIN_REQUEST")
+                && (((PastryScribeContent) msg).type == PastryScribeContent.contentType.TEXT)) {
+            boolean hasChain = chain != null;
+            System.out.println("HasChain: " + hasChain);
+            if (hasChain) {
+                String jsonChain = JsonParser.chainToJson(this.chain);
+                sendChain(jsonChain);
+            }
+            return hasChain;
         }
-        return hasChain;
+        return false;
     }
 
     @Override
@@ -184,18 +188,18 @@ public class PastryScribeClient implements ScribeClient, Application {
     }
 
     @Override
-    public void deliver(Topic topic, ScribeContent content) {
-        System.out.println("MyScribeClient.deliver(" + topic + "," + content + ")");
-        if (REQUEST_CHAIN == true && ( ((PastryScribeContent)content).type == PastryScribeContent.contentType.CHAIN)) {
+    public void deliver(Topic topic, ScribeContent msg) {
+        System.out.println("MyScribeClient.deliver(" + topic + "," + msg + ")");
+        if (REQUEST_CHAIN == true && (((PastryScribeContent) msg).type == PastryScribeContent.contentType.CHAIN)) {
             System.out.println("EPA");
-            System.out.println(((PastryScribeContent) content).content);
-            boolean hasChain = chain != null;
-            if (!hasChain) {
-                this.chain = JsonParser.jsonToChain(((PastryScribeContent) content).content);
-                System.out.println("id: "+ this.chain.id);
+            boolean hasChain = chain == null;
+            if (hasChain) {
+//                this.chain = JsonParser.jsonToChain(((PastryScribeContent) content).content);
+//                System.out.println("id: "+ this.chain.id);
+                System.out.println(((PastryScribeContent) msg).content);
             }
         }
-        if (((PastryScribeContent) content).from == null) {
+        if (((PastryScribeContent) msg).from == null) {
             new Exception("Stack Trace").printStackTrace();
         }
     }
@@ -209,6 +213,26 @@ public class PastryScribeClient implements ScribeClient, Application {
     public void deliver(Id id, Message message) {
         if (message instanceof PublishContent) {
             sendMulticast(((PublishContent) message).content.content);
+        }
+    }
+
+    public void requestChain() {
+        if (myScribe.containsTopic(myTopic)) {
+            System.out.println("Node " + endpoint.getLocalNodeHandle() + " anycasting ");
+            PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), "CHAIN_REQUEST", PastryScribeContent.contentType.TEXT);
+            myScribe.anycast(myTopic, myMessage);
+        } else {
+            System.out.println("Ups. Parece que aún no te has suscrito.");
+        }
+    }
+
+    public void sendChain(String chain) {
+        if (myScribe.containsTopic(myTopic)) {
+            System.out.println("Node " + endpoint.getLocalNodeHandle() + " sending chain");
+            PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), chain, PastryScribeContent.contentType.CHAIN);
+            myScribe.publish(myTopic, myMessage);
+        } else {
+            System.out.println("Ups. Parece que aún no te has suscrito.");
         }
     }
 

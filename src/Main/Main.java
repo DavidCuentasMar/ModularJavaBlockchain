@@ -8,6 +8,7 @@ import Blockchain.Model.Miner;
 import Blockchain.Model.Transaction;
 import Blockchain.Model.TransactionPool;
 import Utils.DigitalSignature;
+import Utils.JsonParser;
 import Utils.PastryPeer2Peer;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
@@ -30,7 +31,7 @@ public class Main {
     public static final int DIFFICULTY = 3;
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException, UnsupportedEncodingException, Exception {
-        Boolean blockchainLogicToTest = false;
+        Boolean blockchainLogicToTest = true;
         if (!blockchainLogicToTest) {
             Environment env = new Environment();
 
@@ -57,6 +58,7 @@ public class Main {
 
             //Chain creation
             Chain theChain = new Chain();
+            theChain.addGenesisBlock();
 
             //Miners Creation
             Miner miner1 = new Miner(new TransactionPool());

@@ -10,6 +10,7 @@ import Blockchain.Model.Chain;
 import Blockchain.Model.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -23,13 +24,13 @@ import java.util.logging.Logger;
  */
 public class JsonParser {
     
-    public static String chainToJson(Object obj) {
+    public static String chainToJson(Chain chain) {
         //Creating the ObjectMapper object
         ObjectMapper mapper = new ObjectMapper();
         //Converting the Object to JSONString
         String jsonString = null;
         try {
-            jsonString = mapper.writeValueAsString(obj);
+            jsonString = mapper.writeValueAsString(chain);
         } catch (JsonProcessingException ex) {
             Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -43,6 +44,7 @@ public class JsonParser {
         CollectionType transReference = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Transaction.class);
         
         try {
+            objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             String[] data = objectMapper.convertValue(jsonString, String[].class);
             ArrayList<Transaction> transactions = objectMapper.readValue(jsonString, transReference);
 //            ArrayList<Transaction> transactions = objectMapper.readValue(
@@ -58,5 +60,33 @@ public class JsonParser {
         }
         System.out.println("process correct !!!!!!!!!!!");
         return newChain;
+    }
+    
+    public static String transactionToJson(Transaction trans) {
+        //Creating the ObjectMapper object
+        ObjectMapper mapper = new ObjectMapper();
+        //Converting the Object to JSONString
+        String jsonString = null;
+        try {
+            jsonString = mapper.writeValueAsString(trans);
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return jsonString;
+    }
+    
+    public static Transaction jsonToTransaction(String jsonString){
+        ObjectMapper objectMapper = new ObjectMapper();
+        Transaction trans = null;
+               
+        try {
+            objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+            String[] data = objectMapper.convertValue(jsonString, String[].class);
+            trans = objectMapper.readValue(jsonString, Transaction.class);
+            System.out.println("jsonToTransaction correct");
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return trans;
     }
 }
