@@ -2,7 +2,10 @@ package Blockchain.Model;
 
 import Main.Main;
 import Utils.HashUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
@@ -15,13 +18,15 @@ public class Block {
     public String previousHash;
     public String hash;
     public String merkleRoot;
+    @JsonDeserialize(as=Transaction.class)
     public ArrayList<Transaction> transactions;
     public LocalDateTime timestamp;
     private Random r;
 
-    public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash, String merkleRoot) {
+    @JsonCreator
+    public Block(@JsonProperty("index") int index, @JsonProperty("timestamp") LocalDateTime timestamp, @JsonProperty("transactions") ArrayList transactions, @JsonProperty("previousHash") String previousHash, @JsonProperty("merkleRoot") String merkleRoot) {
         this(index, timestamp, transactions, previousHash, Main.DIFFICULTY, merkleRoot);
-    }
+    }    
 
     public String getMerkleRoot() {
         return merkleRoot;

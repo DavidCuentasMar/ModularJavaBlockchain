@@ -76,6 +76,7 @@ public class PastryPeer2Peer {
         PastryScribeClient app;
         if(bindport == bootaddress.getPort()){
             Chain theChain = new Chain();
+            theChain.addGenesisBlock();
             app = new PastryScribeClient(node, theChain);
         }else {
             app = new PastryScribeClient(node);

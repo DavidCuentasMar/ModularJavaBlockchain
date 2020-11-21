@@ -2,6 +2,10 @@ package Blockchain.Model;
 
 import Blockchain.Controller.BlockController;
 import Main.Main;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -12,6 +16,7 @@ public class Chain {
 
     private static int idCount = 0;
     private static Semaphore mutex = new Semaphore(1);
+    @JsonDeserialize(as=Block.class)
     public ArrayList<Block> chain;
     public int id;
     public int difficulty;
@@ -19,12 +24,18 @@ public class Chain {
     public Chain() {
         this(Main.DIFFICULTY);
     }
-
+    @JsonCreator
+    public Chain(@JsonProperty("difficulty") int difficulty, @JsonProperty("id") int id, @JsonProperty("chain") ArrayList chain){
+        this.difficulty = difficulty;
+        this.id = id;
+        this.chain = chain;
+    }
+    
     public Chain(int difficulty) {
         chain = new ArrayList();
         id = idCount++;
         this.difficulty = difficulty;
-        addGenesisBlock();
+        //addGenesisBlock();
         System.out.println("Blockchain " + id + " created successfuly!");
     }
 
@@ -56,10 +67,11 @@ public class Chain {
         System.out.println("Failed to add new block " + id);
         return false;
     }
-
+    @JsonIgnore
     public Block getLastBlock() { 
         return chain.get(chain.size() - 1);
     }
+    @JsonIgnore
     public int getChainSize(){
         return this.chain.size();
     }
