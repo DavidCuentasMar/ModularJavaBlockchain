@@ -5,11 +5,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Transaction {
-
+    
+    @JsonProperty
     public String from_address;
+    @JsonProperty
     public String to_address;
+    @JsonProperty
     public String[] data;
+    @JsonProperty
     public String hash;
+    @JsonProperty
     public String signature;
     
     @JsonCreator

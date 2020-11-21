@@ -9,12 +9,8 @@ import Blockchain.Model.Block;
 import Blockchain.Model.Chain;
 import Blockchain.Model.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,20 +36,7 @@ public class JsonParser {
     public static Chain jsonToChain(String jsonString) {
         ObjectMapper objectMapper = new ObjectMapper();
         Chain newChain = null;
-        CollectionType blockReference = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Block.class);
-        CollectionType transReference = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Transaction.class);
-
         try {
-            objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-            String[] data = objectMapper.convertValue(jsonString, String[].class);
-            ArrayList<Transaction> transactions = objectMapper.readValue(jsonString, transReference);
-//            ArrayList<Transaction> transactions = objectMapper.readValue(
-//                    jsonString, new TypeReference<ArrayList<Transaction>>() {}
-//            );
-//            ArrayList<Block> chain = objectMapper.readValue(
-//                    jsonString, new TypeReference<ArrayList<Block>>() {}
-//            );
-            ArrayList<Block> chain = objectMapper.readValue(jsonString, blockReference);
             newChain = objectMapper.readValue(jsonString, Chain.class);
         } catch (JsonProcessingException ex) {
             Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);

@@ -16,7 +16,7 @@ public class Chain {
 
     private static int idCount = 0;
     private static Semaphore mutex = new Semaphore(1);
-    @JsonDeserialize(as=Block.class)
+    @JsonDeserialize(as=ArrayList.class, contentAs=Block.class)
     public ArrayList<Block> chain;
     public int id;
     public int difficulty;
