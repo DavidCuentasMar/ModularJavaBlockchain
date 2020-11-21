@@ -22,6 +22,7 @@ import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Base64;
 import rice.environment.Environment;
 
 //tiempo simulacioon, tiempo real
@@ -31,7 +32,7 @@ public class Main {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException,
             InvalidKeyException, UnsupportedEncodingException, Exception {
-        Boolean blockchainLogicToTest = true;
+        Boolean blockchainLogicToTest = false;
         if (!blockchainLogicToTest) {
             Environment env = new Environment();
 

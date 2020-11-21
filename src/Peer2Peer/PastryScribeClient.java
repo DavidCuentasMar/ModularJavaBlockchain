@@ -61,18 +61,20 @@ public class PastryScribeClient implements ScribeClient, Application {
         // construct the topic
         myTopic = new Topic(new PastryIdFactory(node.getEnvironment()), "Mining");
         System.out.println("myTopic = " + myTopic);
-        if (isGenesis) {
-            this.chain = new Chain();
-        }
-        this.miner = new Miner(new TransactionPool());
         // Key generation
         KeyPair keyPairA = DigitalSignature.generateKeyPair();
         publicKey = keyPairA.getPublic();
         privateKey = keyPairA.getPrivate();
         this.publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
+        
+        if (isGenesis) {
+            this.chain = new Chain();
+            this.chain.addGenesisBlock(publicKeyStr, privateKey);
+        }
+        this.miner = new Miner(new TransactionPool());
 
         try {
-            Transaction tx1 = new Transaction(publicKeyStr, "addrx2", new String[] { "A" });
+            Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr1", "10.0"});
             TransactionController.signTransaction(tx1, privateKey);
             TransactionController.checkTransactionSignature(tx1);
             MinerController.incommingTransaction(miner, tx1);
@@ -101,6 +103,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         KeyPair keyPairA = DigitalSignature.generateKeyPair();
         publicKey = keyPairA.getPublic();
         privateKey = keyPairA.getPrivate();
+        this.publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         REQUEST_CHAIN = true;
 
         // now we can receive messages
@@ -111,7 +114,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         // Get Chain
         requestChain();
 
-        Transaction tx1 = new Transaction("addrx1", "addrx2", new String[] { "A" });
+        Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr2", "10.0"});
         sendTransaction(JsonParser.transactionToJson(tx1));
         // Schedule transactions
         // startPublishTask();

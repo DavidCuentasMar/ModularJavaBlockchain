@@ -41,7 +41,6 @@ public class JsonParser {
         } catch (JsonProcessingException ex) {
             Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("process correct !!!!!!!!!!!");
         return newChain;
     }
 
@@ -66,7 +65,6 @@ public class JsonParser {
             objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             String[] data = objectMapper.convertValue(jsonString, String[].class);
             trans = objectMapper.readValue(jsonString, Transaction.class);
-            System.out.println("jsonToTransaction correct");
         } catch (JsonProcessingException ex) {
             Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -91,7 +89,6 @@ public class JsonParser {
         Block block = null;
         try {
             block = objectMapper.readValue(jsonString, Block.class);
-            System.out.println("jsonToBlock correct");
         } catch (JsonProcessingException ex) {
             Logger.getLogger(JsonParser.class.getName()).log(Level.SEVERE, null, ex);
         }
