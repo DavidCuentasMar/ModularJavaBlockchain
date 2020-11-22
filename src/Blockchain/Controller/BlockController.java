@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class BlockController {
 
-    public static Block createNewBlock(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash) {
+    public static Block createNewBlock(int index, String timestamp, ArrayList transactions, String previousHash) {
         String merkleRoot = "";
         merkleRoot = generateMerkleRoot(transactions);
         Block newBlock = new Block(index, timestamp, transactions, previousHash, merkleRoot);
@@ -103,7 +103,6 @@ public class BlockController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return "";
     }
 }

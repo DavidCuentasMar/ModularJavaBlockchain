@@ -1,8 +1,12 @@
 package Blockchain.Model;
 
 import Utils.HashUtils;
+import Utils.MerkleTrees;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Transaction {
 
@@ -16,6 +20,8 @@ public class Transaction {
     public String hash;
     @JsonProperty
     public String signature;
+    @JsonProperty
+    public String timestamp;
 
     @JsonCreator
     public Transaction(@JsonProperty("from_address") String from_address, @JsonProperty("to_address") String to_address,
@@ -32,7 +38,8 @@ public class Transaction {
         this.from_address = from_address;
         this.to_address = to_address;
         this.data = data;
-        this.hash = HashUtils.calculateHash(this.toString4Hash());
+        this.timestamp = LocalDateTime.now().toString();
+        this.hash = this.callMerkleTreesCreator();
     }
 
     public String getFrom_address() {
@@ -76,12 +83,19 @@ public class Transaction {
         this.signature = signature;
     }
 
-    private String toString4Hash() {
-        StringBuffer s = new StringBuffer();
-        s.append(from_address);
-        s.append(to_address);
-        s.append(data);
-        return s.toString();
-    }
+    private String callMerkleTreesCreator() {
+        List<String> tempTxList = new ArrayList<String>();
+        tempTxList.add(from_address);
+        tempTxList.add(to_address);
+        tempTxList.add(data[0]);
+        tempTxList.add(data[1]);
+        tempTxList.add(signature);
+        tempTxList.add(timestamp);
 
+        MerkleTrees merkleTrees = new MerkleTrees(tempTxList);
+        merkleTrees.merkle_tree();
+        System.out.println("root : " + merkleTrees.getRoot());
+
+        return merkleTrees.getRoot();
+    }
 }

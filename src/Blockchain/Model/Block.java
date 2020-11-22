@@ -21,14 +21,13 @@ public class Block {
     @JsonDeserialize(as=ArrayList.class, contentAs=Transaction.class)
     public ArrayList<Transaction> transactions;
     //@JsonDeserialize(as = LocalDateTime.class)
-    @JsonIgnore
-    public LocalDateTime timestamp;
+    public String timestamp;
     private Random r;
 
     @JsonCreator
     public Block(@JsonProperty("idCadena") int idCadena, @JsonProperty("index") int index, @JsonProperty("nonce") int nonce,
             @JsonProperty("previousHash") String previousHash, @JsonProperty("hash") String hash, @JsonProperty("merkleRoot") String merkleRoot,
-            @JsonProperty("transactions") ArrayList transactions, @JsonProperty("timestamp") LocalDateTime timestamp) {
+            @JsonProperty("transactions") ArrayList transactions, @JsonProperty("timestamp") String timestamp) {
         this.idCadena = idCadena;
         this.index = index;
         this.nonce = nonce;
@@ -40,7 +39,7 @@ public class Block {
 
     }
 
-    public Block(int index, LocalDateTime timestamp, ArrayList transactions,
+    public Block(int index, String timestamp, ArrayList transactions,
             String previousHash, String merkleRoot) {
         this(index, timestamp, transactions, previousHash, Main.DIFFICULTY, merkleRoot);
     }
@@ -53,7 +52,7 @@ public class Block {
         this.merkleRoot = merkleRoot;
     }
 
-    public Block(int index, LocalDateTime timestamp, ArrayList transactions, String previousHash, int difficulty, String merkleRoot) {
+    public Block(int index, String timestamp, ArrayList transactions, String previousHash, int difficulty, String merkleRoot) {
         r = new Random();
         this.index = index;
         this.timestamp = timestamp;
@@ -81,13 +80,13 @@ public class Block {
     }
 
     @JsonIgnore
-    public LocalDateTime getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
     
     //@JsonProperty("timestamp")
     @JsonIgnore
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 

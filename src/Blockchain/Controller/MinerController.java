@@ -20,7 +20,7 @@ public class MinerController {
             return null;
         }
         Block candidateBlock = BlockController.createNewBlock(theChain.getChainSize(),
-                LocalDateTime.now(),
+                LocalDateTime.now().toString(),
                 txToPublish,
                 theChain.getLastBlock().getHash());
         miner.getTxPool().clearTxPool();

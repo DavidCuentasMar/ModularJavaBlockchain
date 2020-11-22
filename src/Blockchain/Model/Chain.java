@@ -53,7 +53,7 @@ public class Chain {
             TransactionController.signTransaction(tx0, privateKey);
             ArrayList<Transaction> txs = new ArrayList();
             txs.add(tx0);
-            Block b = BlockController.createNewBlock(0, LocalDateTime.now(), txs, "0");
+            Block b = BlockController.createNewBlock(0, LocalDateTime.now().toString(), txs, "0");
             BlockController.validate(b, difficulty);
             chain.add(b);
         } catch (NoSuchAlgorithmException ex) {

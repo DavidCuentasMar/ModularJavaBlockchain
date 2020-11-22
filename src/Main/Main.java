@@ -32,7 +32,7 @@ public class Main {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException,
             InvalidKeyException, UnsupportedEncodingException, Exception {
-        Boolean blockchainLogicToTest = false;
+        Boolean blockchainLogicToTest = true;
         if (!blockchainLogicToTest) {
             Environment env = new Environment();
 
@@ -116,6 +116,12 @@ public class Main {
             }
 
             theChain.listAllBlocks();
+            
+            
+            String newchain = JsonParser.chainToJson(theChain);
+            Chain otherChain = JsonParser.jsonToChain(newchain);
+            
+            otherChain.listAllBlocks();
         }
     }
 }
