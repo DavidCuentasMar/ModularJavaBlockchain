@@ -91,6 +91,8 @@ public class PastryScribeClient implements ScribeClient, Application {
         // now we can receive messages
         endpoint.register();
         subscribe();
+        //startPublishTask();
+
     }
 
     public PastryScribeClient(Node node) {
@@ -119,7 +121,7 @@ public class PastryScribeClient implements ScribeClient, Application {
 
         // Schedule transactions
         sharePublicKeyToTest();
-        startPublishTask();
+        //startPublishTask();
     }
 
     private void subscribe() {
@@ -199,6 +201,8 @@ public class PastryScribeClient implements ScribeClient, Application {
         if (!publicKey.equals(publicKeyStr)) {
             if (!listPublicKeys.contains(publicKey)) {
                 listPublicKeys.add(publicKey);
+                int currentSize = listPublicKeys.size();
+                System.out.println("currentSize: "+ currentSize);
                 sharePublicKeyToTest();
             }
         }
@@ -254,7 +258,10 @@ public class PastryScribeClient implements ScribeClient, Application {
     public void deliver(Id id, Message message) {
         if (message instanceof PublishContent) {
             Transaction tx = generateRandomTransaction();
-            sendTransaction(JsonParser.transactionToJson(tx));
+            System.out.println("SEND TRANS: "+tx);
+            if (tx != null) {
+                sendTransaction(JsonParser.transactionToJson(tx));
+            }
         }
     }
 
@@ -314,10 +321,19 @@ public class PastryScribeClient implements ScribeClient, Application {
     }
 
     public Transaction generateRandomTransaction() {
-        Random r = new Random();
-        double amount = 1.0 + (200.0 - 1.0) * r.nextDouble();
-        int addr = r.nextInt(20);
-        return new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr" + Integer.toString(addr), Double.toString(amount)});
+        int currentSize = listPublicKeys.size();
+        System.out.println("currentSize: "+ currentSize);
+        if (currentSize > 0) {
+            System.out.println("generate tx");
+            Random r = new Random();
+            int selectedId = r.nextInt(currentSize);
+            String selectedKey = listPublicKeys.get(selectedId);
+
+            double amount = 1.0 + (200.0 - 1.0) * r.nextDouble();
+            int addr = r.nextInt(20);
+            return new Transaction(publicKeyStr, "JavaContractCoin", new String[]{selectedKey, Double.toString(amount)});
+        }
+        return null;
     }
 
 }
