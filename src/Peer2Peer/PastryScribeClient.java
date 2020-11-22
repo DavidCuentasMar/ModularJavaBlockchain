@@ -116,12 +116,6 @@ public class PastryScribeClient implements ScribeClient, Application {
         // Miner
         subscribe();
 
-        // Get Chain
-        requestChain();
-
-        // Schedule transactions
-        sharePublicKeyToTest();
-        //startPublishTask();
     }
 
     private void subscribe() {
@@ -188,7 +182,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         } else if (isTransactionDelivery((PastryScribeContent) msg)) {
             handlerTransactionDelivery((PastryScribeContent) msg);
         } else if (isPublicKeyDelivery((PastryScribeContent) msg)) {
-            validatePublicKey(((PastryScribeContent) msg).content);
+            validatePublicKey((PastryScribeContent) msg);
         }
 
         if (((PastryScribeContent) msg).from == null) {
@@ -196,14 +190,16 @@ public class PastryScribeClient implements ScribeClient, Application {
         }
     }
 
-    public void validatePublicKey(String publicKey) {
+    public void validatePublicKey(PastryScribeContent msg) {
+        String publicKey = msg.content;
         System.out.println("in comming: " + publicKey);
         if (!publicKey.equals(publicKeyStr)) {
             if (!listPublicKeys.contains(publicKey)) {
                 listPublicKeys.add(publicKey);
                 int currentSize = listPublicKeys.size();
-                System.out.println("currentSize: "+ currentSize);
-                sharePublicKeyToTest();
+                System.out.println("currentSize: " + currentSize);
+                routeMsgDirect(msg.from, new PastryScribeContent(endpoint.getLocalNodeHandle(), publicKeyStr,
+                        PastryScribeContent.contentType.PUBLIC_KEY));
             }
         }
     }
@@ -257,10 +253,15 @@ public class PastryScribeClient implements ScribeClient, Application {
     @Override
     public void deliver(Id id, Message message) {
         if (message instanceof PublishContent) {
-            Transaction tx = generateRandomTransaction();
-            System.out.println("SEND TRANS: "+tx);
-            if (tx != null) {
-                sendTransaction(JsonParser.transactionToJson(tx));
+            PublishContent msg = (PublishContent) message;
+            if (msg.content == null) {
+                Transaction tx = generateRandomTransaction();
+                if (tx != null) {
+                    sendTransaction(JsonParser.transactionToJson(tx));
+                }
+            } else {
+                listPublicKeys.add(msg.content.content);
+                System.out.println("Me llegó esta pk: " + msg.content.content);
             }
         }
     }
@@ -322,7 +323,7 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     public Transaction generateRandomTransaction() {
         int currentSize = listPublicKeys.size();
-        System.out.println("currentSize: "+ currentSize);
+        System.out.println("currentSize: " + currentSize);
         if (currentSize > 0) {
             System.out.println("generate tx");
             Random r = new Random();
@@ -336,9 +337,24 @@ public class PastryScribeClient implements ScribeClient, Application {
         return null;
     }
 
+    public void routeMsgDirect(NodeHandle nh, PastryScribeContent content) {
+        System.out.println(this + " sending direct to " + nh);
+        PublishContent msg = new PublishContent(content);
+        endpoint.route(null, msg, nh);
+    }
 }
 
 class PublishContent implements Message {
+
+    PastryScribeContent content = null;
+
+    public PublishContent() {
+
+    }
+
+    public PublishContent(PastryScribeContent content) {
+        this.content = content;
+    }
 
     public int getPriority() {
         return MAX_PRIORITY;

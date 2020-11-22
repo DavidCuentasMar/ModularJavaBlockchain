@@ -28,65 +28,78 @@ import rice.pastry.standard.RandomNodeIdFactory;
 import rice.persistence.*;
 
 public class PastryPeer2Peer {
-    /**
-    * This constructor sets up a PastryNode.  It will bootstrap to an 
-    * existing ring if it can find one at the specified location, otherwise
-    * it will start a new ring.
-    * 
-    * @param bindport the local port to bind to 
-    * @param bootaddress the IP:port of the node to boot from
-    * @param env the environment for these nodes
-    */
 
+    /**
+     * This constructor sets up a PastryNode. It will bootstrap to an existing
+     * ring if it can find one at the specified location, otherwise it will
+     * start a new ring.
+     *
+     * @param bindport the local port to bind to
+     * @param bootaddress the IP:port of the node to boot from
+     * @param env the environment for these nodes
+     */
     public PastryPeer2Peer(int bindport, InetSocketAddress bootaddress, Environment env) throws Exception {
-    
+
         // Generate the NodeIds Randomly
         NodeIdFactory nidFactory = new RandomNodeIdFactory(env);
-        
+
         // construct the PastryNodeFactory, this is how we use rice.pastry.socket
         PastryNodeFactory factory = new SocketPastryNodeFactory(nidFactory, bindport, env);
 
         // construct a node
         PastryNode node = factory.newNode();
-        
+
         // used for generating PastContent object Ids.
         // this implements the "hash function" for our DHT
         PastryIdFactory idf = new PastryIdFactory(env);
-    
-        
+
         node.boot(bootaddress);
-                
+
         // the node may require sending several messages to fully boot into the ring
-        synchronized(node) {
-            while(!node.isReady() && !node.joinFailed()) {
+        synchronized (node) {
+            while (!node.isReady() && !node.joinFailed()) {
                 // delay so we don't busy-wait
                 node.wait(500);
-                
+
                 // abort if can't join
                 if (node.joinFailed()) {
-                  throw new IOException("Could not join the FreePastry ring.  Reason:"+node.joinFailedReason()); 
+                    throw new IOException("Could not join the FreePastry ring.  Reason:" + node.joinFailedReason());
                 }
             }
         }
-        
-        System.out.println("Finished creating new node "+node);
-        
+
+        System.out.println("Finished creating new node " + node);
+
         // wait 10 seconds
         env.getTimeSource().sleep(10000);
-        
+
         PastryScribeClient app;
-        if(bindport == bootaddress.getPort()){
+        if (bindport == bootaddress.getPort()) {
             app = new PastryScribeClient(node, true);
-        }else {
+        } else {
             app = new PastryScribeClient(node);
+
+            // wait 5 seconds
+            env.getTimeSource().sleep(5000);
+
+            // Get Chain
+            app.requestChain();
         }
-//        PastryMenu PastryMenuThread = new PastryMenu(app, node, env);
-//        PastryMenuThread.start();
+
+        // Request PubKey
+        app.sharePublicKeyToTest();
+
+        // wait 5 seconds
+        env.getTimeSource().sleep(5000);
+        
+        app.startPublishTask();
+
     }
 
 }
 
 class BlockchainScribeApp {
+
     Chain chain;
     Miner miner;
     public PublicKey publicKey;
@@ -101,11 +114,11 @@ class BlockchainScribeApp {
         privateKey = keyPairA.getPrivate();
     }
 //    Programar creación de transacciones
-    
-    
+
 }
 
 class PastryMenu extends Thread {
+
     PastryScribeClient client;
     PastryNode node;
     Environment env;
@@ -138,24 +151,23 @@ class PastryMenu extends Thread {
                 } else if (in == 2) {
                     System.out.print("Escribe el mensaje: ");
                     String msg = scm.nextLine();
-                    if(msg.isEmpty()){
+                    if (msg.isEmpty()) {
                         throw new Exception("Respuesta inválida. Adios");
                     }
                     //client.sendMulticast(msg);
-                }else {
+                } else {
                     break;
                 }
             }
-        }
-        catch(IOException io){
+        } catch (IOException io) {
             System.out.println("Hubo un problema con el archivo");
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Respuesta inválida. Adios");
         } finally {
             client.unsuscribe();
             env.destroy();
             System.exit(1);
-            
+
         }
     }
 }
