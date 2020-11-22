@@ -7,7 +7,10 @@ import java.util.ArrayList;
 
 public class JavaContractCoin extends JavaContract {
 
-    public boolean run(Chain theChain, Transaction tx) {
+    public boolean run(Chain theChain, Transaction tx, ArrayList<Transaction> txsToValidate) {
+        System.out.println("################");
+        System.out.println(txsToValidate.size());
+        System.out.println("################");
         boolean contractSuccess = false;
         double amountToSend = Double.valueOf(tx.getData()[1]);
         double totalInput = 0;
@@ -32,11 +35,14 @@ public class JavaContractCoin extends JavaContract {
                         if (currentBlockTx.getFrom_address() == tx.getFrom_address()) {
                             totalOutput += Double.valueOf(currentBlockTx.getData()[1]);
                         }
+                        if (currentBlockTx.getData()[0] == tx.getFrom_address()) {
+                            totalInput += Double.valueOf(currentBlockTx.getData()[1]);
+                        }
                     }
                 }
             }
         }
-        if(( totalInput - totalOutput) >= amountToSend){
+        if ((totalInput - totalOutput) >= amountToSend) {
             contractSuccess = true;
         }
         System.out.println(totalInput);

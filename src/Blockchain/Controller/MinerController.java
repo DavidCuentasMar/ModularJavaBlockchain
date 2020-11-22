@@ -49,8 +49,8 @@ public class MinerController {
                 try {
                     Class<?> smartContractClass = Class.forName("Blockchain.Contracts." + contractName);
                     Object smartContractObj = smartContractClass.newInstance();
-                    Method m = smartContractObj.getClass().getMethod("run", Chain.class, Transaction.class);
-                    boolean contractSuccess = (boolean) m.invoke(smartContractObj, theChain, tx);
+                    Method m = smartContractObj.getClass().getMethod("run", Chain.class, Transaction.class, ArrayList.class);
+                    boolean contractSuccess = (boolean) m.invoke(smartContractObj, theChain, tx, txToPublish);
                     if (contractSuccess == false) {
                         removeTx = true;
                     }

@@ -49,7 +49,7 @@ public class Chain {
 
     public void addGenesisBlock(String publicKeyStr, PrivateKey privateKey) { 
         try {
-            Transaction tx0 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{publicKeyStr, "1000.0"});
+            Transaction tx0 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{publicKeyStr, "1000000.0"});
             TransactionController.signTransaction(tx0, privateKey);
             ArrayList<Transaction> txs = new ArrayList();
             txs.add(tx0);

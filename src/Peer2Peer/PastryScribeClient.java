@@ -79,7 +79,6 @@ public class PastryScribeClient implements ScribeClient, Application {
         try {
             Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr1", "10.0"});
             TransactionController.signTransaction(tx1, privateKey);
-            TransactionController.checkTransactionSignature(tx1);
             MinerController.incommingTransaction(miner, tx1);
             Block minerBlock = MinerController.GenerateCandiateBock(miner, chain);
             chain.addBlock(minerBlock);
