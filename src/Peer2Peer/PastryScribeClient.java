@@ -17,6 +17,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Random;
 import java.util.logging.Level;
@@ -53,6 +54,7 @@ public class PastryScribeClient implements ScribeClient, Application {
     boolean REQUEST_CHAIN = false;
     CancellableTask publishTask;
     public String publicKeyStr;
+    private ArrayList<String> listPublicKeys = new ArrayList<>();
 
     public PastryScribeClient(Node node, Boolean isGenesis) {
         // Genesis node
@@ -67,7 +69,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         publicKey = keyPairA.getPublic();
         privateKey = keyPairA.getPrivate();
         this.publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
-        
+
         if (isGenesis) {
             this.chain = new Chain();
             this.chain.addGenesisBlock(publicKeyStr, privateKey);
@@ -115,9 +117,8 @@ public class PastryScribeClient implements ScribeClient, Application {
         // Get Chain
         requestChain();
 
-        Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr2", "10.0"});
-        sendTransaction(JsonParser.transactionToJson(tx1));
         // Schedule transactions
+        sharePublicKeyToTest();
         startPublishTask();
     }
 
@@ -184,6 +185,8 @@ public class PastryScribeClient implements ScribeClient, Application {
             handlerBlockDelivery((PastryScribeContent) msg);
         } else if (isTransactionDelivery((PastryScribeContent) msg)) {
             handlerTransactionDelivery((PastryScribeContent) msg);
+        } else if (isPublicKeyDelivery((PastryScribeContent) msg)) {
+            validatePublicKey(((PastryScribeContent) msg).content);
         }
 
         if (((PastryScribeContent) msg).from == null) {
@@ -191,8 +194,22 @@ public class PastryScribeClient implements ScribeClient, Application {
         }
     }
 
+    public void validatePublicKey(String publicKey) {
+        System.out.println("in comming: " + publicKey);
+        if (!publicKey.equals(publicKeyStr)) {
+            if (!listPublicKeys.contains(publicKey)) {
+                listPublicKeys.add(publicKey);
+                sharePublicKeyToTest();
+            }
+        }
+    }
+
     public boolean isChainDelivery(PastryScribeContent msg) {
         return (this.REQUEST_CHAIN == true && (msg.type == PastryScribeContent.contentType.CHAIN));
+    }
+
+    public boolean isPublicKeyDelivery(PastryScribeContent msg) {
+        return (msg.type == PastryScribeContent.contentType.PUBLIC_KEY);
     }
 
     public void handlerChainDelivery(PastryScribeContent chain) {
@@ -252,6 +269,17 @@ public class PastryScribeClient implements ScribeClient, Application {
         }
     }
 
+    public void sharePublicKeyToTest() {
+        if (myScribe.containsTopic(myTopic)) {
+            System.out.println("Node " + endpoint.getLocalNodeHandle() + " sending public key");
+            PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), publicKeyStr,
+                    PastryScribeContent.contentType.PUBLIC_KEY);
+            myScribe.publish(myTopic, myMessage);
+        } else {
+            System.out.println("Ups. Parece que aún no te has suscrito.");
+        }
+    }
+
     public void sendChain(String chain) {
         if (myScribe.containsTopic(myTopic)) {
             System.out.println("Node " + endpoint.getLocalNodeHandle() + " sending chain");
@@ -284,12 +312,12 @@ public class PastryScribeClient implements ScribeClient, Application {
             System.out.println("Ups. Parece que aún no te has suscrito.");
         }
     }
-    
-    public Transaction generateRandomTransaction(){
-        Random r  = new Random();
-        double amount = 1.0 + ( 200.0 - 1.0 ) * r.nextDouble();
+
+    public Transaction generateRandomTransaction() {
+        Random r = new Random();
+        double amount = 1.0 + (200.0 - 1.0) * r.nextDouble();
         int addr = r.nextInt(20);
-        return new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr"+Integer.toString(addr), Double.toString(amount)});
+        return new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr" + Integer.toString(addr), Double.toString(amount)});
     }
 
 }

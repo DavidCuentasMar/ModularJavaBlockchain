@@ -32,7 +32,7 @@ public class Main {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, SignatureException,
             InvalidKeyException, UnsupportedEncodingException, Exception {
-        Boolean blockchainLogicToTest = true;
+        Boolean blockchainLogicToTest = false;
         if (!blockchainLogicToTest) {
             Environment env = new Environment();
 

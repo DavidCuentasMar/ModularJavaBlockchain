@@ -20,7 +20,8 @@ public class PastryScribeContent implements ScribeContent {
         TRANSACTION,
         BLOCK,
         CHAIN,
-        TEXT
+        TEXT,
+        PUBLIC_KEY
     }
     public contentType type;
 
