@@ -18,6 +18,7 @@ import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import rice.p2p.commonapi.*;
@@ -117,7 +118,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr2", "10.0"});
         sendTransaction(JsonParser.transactionToJson(tx1));
         // Schedule transactions
-        // startPublishTask();
+        startPublishTask();
     }
 
     private void subscribe() {
@@ -126,29 +127,7 @@ public class PastryScribeClient implements ScribeClient, Application {
     }
 
     public void startPublishTask() {
-        // PastryScribeContent content = new
-        // PastryScribeContent(endpoint.getLocalNodeHandle(), "nueva Transacción");
-        // publishTask = endpoint.scheduleMessage(new PublishContent(content), 10000,
-        // 10000);
-    }
-
-    public void sendMulticast(String msg) {
-        if (myScribe.containsTopic(myTopic)) {
-            System.out.println("Node " + endpoint.getLocalNodeHandle() + " broadcasting " + msg);
-            PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), msg,
-                    PastryScribeContent.contentType.CHAIN);
-            myScribe.publish(myTopic, myMessage);
-        } else {
-            System.out.println("Ups. Parece que aún no te has suscrito.");
-        }
-    }
-
-    public void sendAnycast() {
-        System.out.println("Node " + endpoint.getLocalNodeHandle() + " anycasting ");
-        PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), "Solicitud cadena",
-                PastryScribeContent.contentType.TEXT);
-        myScribe.anycast(myTopic, myMessage);
-
+        publishTask = endpoint.scheduleMessage(new PublishContent(), 10000, 10000);
     }
 
     public void unsuscribe() {
@@ -169,8 +148,8 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     public boolean handlerChainRequest() {
         boolean hasChain = chain != null;
-        System.out.println("HasChain: " + hasChain);
         if (hasChain) {
+            System.out.println("HasChain: " + hasChain);
             String jsonChain = JsonParser.chainToJson(this.chain);
             sendChain(jsonChain);
         }
@@ -257,13 +236,14 @@ public class PastryScribeClient implements ScribeClient, Application {
     @Override
     public void deliver(Id id, Message message) {
         if (message instanceof PublishContent) {
-            sendMulticast(((PublishContent) message).content.content);
+            Transaction tx = generateRandomTransaction();
+            sendTransaction(JsonParser.transactionToJson(tx));
         }
     }
 
     public void requestChain() {
         if (myScribe.containsTopic(myTopic)) {
-            System.out.println("Node " + endpoint.getLocalNodeHandle() + " anycasting ");
+            System.out.println("Node " + endpoint.getLocalNodeHandle() + " requesting chain ");
             PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), "CHAIN_REQUEST",
                     PastryScribeContent.contentType.TEXT);
             myScribe.anycast(myTopic, myMessage);
@@ -304,16 +284,17 @@ public class PastryScribeClient implements ScribeClient, Application {
             System.out.println("Ups. Parece que aún no te has suscrito.");
         }
     }
+    
+    public Transaction generateRandomTransaction(){
+        Random r  = new Random();
+        double amount = 1.0 + ( 200.0 - 1.0 ) * r.nextDouble();
+        int addr = r.nextInt(20);
+        return new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr"+Integer.toString(addr), Double.toString(amount)});
+    }
 
 }
 
 class PublishContent implements Message {
-
-    PastryScribeContent content;
-
-    public PublishContent(PastryScribeContent content) {
-        this.content = content;
-    }
 
     public int getPriority() {
         return MAX_PRIORITY;

@@ -141,7 +141,7 @@ class PastryMenu extends Thread {
                     if(msg.isEmpty()){
                         throw new Exception("Respuesta inválida. Adios");
                     }
-                    client.sendMulticast(msg);
+                    //client.sendMulticast(msg);
                 }else {
                     break;
                 }
