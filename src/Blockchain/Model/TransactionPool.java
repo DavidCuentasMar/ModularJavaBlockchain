@@ -1,5 +1,6 @@
 package Blockchain.Model;
 
+import Utils.JsonParser;
 import java.util.ArrayList;
 
 public class TransactionPool {
@@ -11,7 +12,14 @@ public class TransactionPool {
 
     public void addTransaction(Transaction t){
         this.transactions.add(t);
-        
+    }
+    
+    public void showTransactions () {
+        System.out.println("tamaño del pool: "+transactions.size());
+        for (Transaction tx: transactions){
+            String strTx = JsonParser.transactionToJson(tx);
+            System.out.println(strTx);
+        }
     }
 
     public void clear(){

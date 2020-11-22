@@ -98,7 +98,7 @@ public class Main {
 
             // Miner Generates Candidate Block
             Block minerBlock = MinerController.GenerateCandiateBock(miner1, theChain);
-            MinerController.broadCastBlock(miner1, minerBlock);
+            //MinerController.broadCastBlock(miner1, minerBlock);
             if (minerBlock != null) {
                 theChain.addBlock(minerBlock);
             }
@@ -110,7 +110,7 @@ public class Main {
             System.out.println(miner1.getTxPool().getTransactions().size());
             // Miner Generates Candidate Block
             minerBlock = MinerController.GenerateCandiateBock(miner1, theChain);
-            MinerController.broadCastBlock(miner1, minerBlock);
+            //MinerController.broadCastBlock(miner1, minerBlock);
             if (minerBlock != null) {
                 theChain.addBlock(minerBlock);
             }

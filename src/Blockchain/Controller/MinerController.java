@@ -28,10 +28,6 @@ public class MinerController {
         return candidateBlock;
     }
 
-    public static void broadCastBlock(Miner miner, Block candidateBlock) {
-        //BROAD CAST BLOCK
-    }
-
     public static void incommingTransaction(Miner miner, Transaction transaction) {
         TransactionPoolController.addTransaction(miner.getTxPool(), transaction);
     }

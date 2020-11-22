@@ -92,7 +92,6 @@ public class PastryScribeClient implements ScribeClient, Application {
         endpoint.register();
         subscribe();
         //startPublishTask();
-
     }
 
     public PastryScribeClient(Node node) {
@@ -110,7 +109,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         privateKey = keyPairA.getPrivate();
         this.publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         REQUEST_CHAIN = true;
-
+        
         // now we can receive messages
         endpoint.register();
         // Miner
@@ -241,8 +240,18 @@ public class PastryScribeClient implements ScribeClient, Application {
     public void handlerTransactionDelivery(PastryScribeContent trans) {
         Transaction tx = JsonParser.jsonToTransaction(trans.content);
         System.out.println("Transaction hash: " + tx.hash);
-        this.miner.getTxPool().addTransaction(tx);
+        MinerController.incommingTransaction(this.miner, tx);
         System.out.println("Transaction added to miner pool");
+        
+        if(this.miner.getTxPool().getTransactions().size() == 6){
+            Block minerBlock = MinerController.GenerateCandiateBock(this.miner, this.chain);
+            if (minerBlock != null) {
+                //minando
+                this.chain.addBlock(minerBlock);
+                System.out.println("paso el minado !!!!");
+            }
+        }
+        //this.miner.getTxPool().showTransactions();
     }
 
     @Override
@@ -261,7 +270,6 @@ public class PastryScribeClient implements ScribeClient, Application {
                 }
             } else {
                 listPublicKeys.add(msg.content.content);
-                System.out.println("Me llegó esta pk: " + msg.content.content);
             }
         }
     }
@@ -332,7 +340,15 @@ public class PastryScribeClient implements ScribeClient, Application {
 
             double amount = 1.0 + (200.0 - 1.0) * r.nextDouble();
             int addr = r.nextInt(20);
-            return new Transaction(publicKeyStr, "JavaContractCoin", new String[]{selectedKey, Double.toString(amount)});
+            Transaction newTx = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{selectedKey, Double.toString(amount)});
+            try {
+                TransactionController.signTransaction(newTx, privateKey);
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(PastryScribeClient.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvalidKeySpecException ex) {
+                Logger.getLogger(PastryScribeClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return newTx;
         }
         return null;
     }
