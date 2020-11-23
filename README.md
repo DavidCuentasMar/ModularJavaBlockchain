@@ -1,4 +1,5 @@
 # BlcockChain Modular Simulator
+
 Academic Modular Blockchain Initiative
 
 # Instructions
@@ -33,11 +34,22 @@ In this step you have two possibilities with Dockerfile or whit docker-compose.y
 
     $ docker run -it --rm --name blockchain blockchain-image
 
+## docker-compose
 
+### create image and up containers
+
+    $ docker-compose up --build
+
+### to stop all running containers
+
+    $ docker-compose down
+
+### to see all the address ip of containers
+
+    $ docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq)
 
 ## Run local
 
     $ java -jar ModularJavaBlockchain.jar localbindport bootIP bootPort
 
     $ example java -jar ModularJavaBlockchain.jar 9000 192.168.1.11 9000
-

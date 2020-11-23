@@ -1,8 +1,26 @@
-version: '3'
+version: "3"
 services:
-  web:
+  node_1:
     build: .
-    ports:
-      - "5000:5000"
+    command:
+      [
+        "java",
+        "-jar",
+        "./dist/ModularJavaBlockchain.jar",
+        "9000",
+        "172.26.0.3",
+        "9000",
+      ]
+  node_2:
+    build: .
+    command:
+      [
+        "java",
+        "-jar",
+        "./dist/ModularJavaBlockchain.jar",
+        "9001",
+        "172.26.0.4",
+        "9000",
+      ]
   redis:
     image: "redis:alpine"
