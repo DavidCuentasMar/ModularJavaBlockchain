@@ -40,6 +40,10 @@ In this step you have two possibilities with Dockerfile or whit docker-compose.y
 
     $ docker-compose up --build
 
+### if you want to see the logs of a specific container
+
+    $ docker logs --follow [your_docker_container_id]
+
 ### to stop all running containers
 
     $ docker-compose down

@@ -15,9 +15,7 @@ import java.nio.file.Paths;
 public class ConfigController {
 
     public static ConfigProgram readConfigJson() {
-        
         ConfigProgram config = null;
-        System.out.println("AQUI!!!!!!!!!!!!!!");
         try {
             // create object mapper instance
             ObjectMapper mapper = new ObjectMapper();
@@ -27,7 +25,6 @@ public class ConfigController {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
         return config;
     }
 }
