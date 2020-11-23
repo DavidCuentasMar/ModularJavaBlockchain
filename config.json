@@ -1,4 +1,5 @@
 {
     "numberOfTxPerBlock":"2",
-    "initialAmount":"3000000.0"
+    "initialAmount":"4000000.0",
+    "difficulty":"5"
 }
