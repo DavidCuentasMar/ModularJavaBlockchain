@@ -72,8 +72,10 @@ public class Main {
             Miner miner2 = new Miner(new TransactionPool());
 
             // Transaction Creation
-            Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[] { "addrx2", "10.0" });
-            Transaction tx2 = new Transaction(publicKeyStr, "JavaContractCoin", new String[] { "addrx3", "10.0" });
+            Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addrx2", "10.0"});
+            Transaction tx2 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addrx3", "10.0"});
+            Transaction tx3 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addrx4", "10.0"});
+            Transaction tx4 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addrx5", "10.0"});
 
             ArrayList<Transaction> transactionGroupOne = new ArrayList();
             transactionGroupOne.add(tx1);
@@ -115,12 +117,16 @@ public class Main {
                 theChain.addBlock(minerBlock);
             }
 
-            theChain.listAllBlocks();
-            
-            
+            TransactionController.signTransaction(tx3, privateKey);
+            MinerController.incommingTransaction(miner1, tx3);
+            minerBlock = MinerController.GenerateCandiateBock(miner1, theChain);
+            if (minerBlock != null) {
+                theChain.addBlock(minerBlock);
+            }
+
             String newchain = JsonParser.chainToJson(theChain);
             Chain otherChain = JsonParser.jsonToChain(newchain);
-            
+
             otherChain.listAllBlocks();
         }
     }

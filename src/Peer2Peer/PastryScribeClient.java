@@ -243,6 +243,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         System.out.println("Transaction added to miner pool");
         
         if(this.miner.getTxPool().getTransactions().size() == 6){
+            System.out.println("[TIEMPO DE MINADO]");
             Block minerBlock = MinerController.GenerateCandiateBock(this.miner, this.chain);
             if (minerBlock != null) {
                 //minando
