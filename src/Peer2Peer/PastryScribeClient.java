@@ -7,6 +7,7 @@ import Blockchain.Model.Chain;
 import Blockchain.Model.Miner;
 import Blockchain.Model.Transaction;
 import Blockchain.Model.TransactionPool;
+import Utils.ConfigController;
 import Utils.DigitalSignature;
 import Utils.JsonParser;
 import java.io.UnsupportedEncodingException;
@@ -242,7 +243,8 @@ public class PastryScribeClient implements ScribeClient, Application {
         MinerController.incommingTransaction(this.miner, tx);
         System.out.println("Transaction added to miner pool");
         
-        if(this.miner.getTxPool().getTransactions().size() == 6){
+        int numberOfTxPerBlock = ConfigController.readConfigJson().numberOfTxPerBlock;
+        if(this.miner.getTxPool().getTransactions().size() == numberOfTxPerBlock){
             System.out.println("[TIEMPO DE MINADO]");
             Block minerBlock = MinerController.GenerateCandiateBock(this.miner, this.chain);
             if (minerBlock != null) {

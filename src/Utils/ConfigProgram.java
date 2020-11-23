@@ -16,6 +16,7 @@ public class ConfigProgram {
 
     public int numberOfTxPerBlock;
     public String initialAmount;
+    public int difficulty;
 
     public ConfigProgram() {
 

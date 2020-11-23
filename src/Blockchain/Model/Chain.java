@@ -3,6 +3,7 @@ package Blockchain.Model;
 import Blockchain.Controller.BlockController;
 import Blockchain.Controller.TransactionController;
 import Main.Main;
+import Utils.ConfigController;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,7 +31,7 @@ public class Chain {
     public int difficulty;
 
     public Chain() {
-        this(Main.DIFFICULTY);
+        this(ConfigController.readConfigJson().difficulty);
     }
     @JsonCreator
     public Chain(@JsonProperty("difficulty") int difficulty, @JsonProperty("id") int id, @JsonProperty("chain") ArrayList chain){
@@ -49,7 +50,8 @@ public class Chain {
 
     public void addGenesisBlock(String publicKeyStr, PrivateKey privateKey) { 
         try {
-            Transaction tx0 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{publicKeyStr, "1000000.0"});
+            String amount = ConfigController.readConfigJson().initialAmount;
+            Transaction tx0 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{publicKeyStr, amount});
             TransactionController.signTransaction(tx0, privateKey);
             ArrayList<Transaction> txs = new ArrayList();
             txs.add(tx0);
