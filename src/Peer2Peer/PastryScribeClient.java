@@ -71,27 +71,16 @@ public class PastryScribeClient implements ScribeClient, Application {
         privateKey = keyPairA.getPrivate();
         this.publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
+        // now we can receive messages
+        endpoint.register();
+        subscribe();
+        //startPublishTask();
+
         if (isGenesis) {
             this.chain = new Chain();
             this.chain.addGenesisBlock(publicKeyStr, privateKey);
         }
         this.miner = new Miner(new TransactionPool());
-
-        try {
-            Transaction tx1 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{"addxr1", "10.0"});
-            TransactionController.signTransaction(tx1, privateKey);
-            MinerController.incommingTransaction(miner, tx1);
-            Block minerBlock = MinerController.GenerateCandiateBock(miner, chain);
-            chain.addBlock(minerBlock);
-            chain.listAllBlocks();
-        } catch (Exception ex) {
-            Logger.getLogger(PastryScribeClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        // now we can receive messages
-        endpoint.register();
-        subscribe();
-        //startPublishTask();
     }
 
     public PastryScribeClient(Node node) {
@@ -101,6 +90,11 @@ public class PastryScribeClient implements ScribeClient, Application {
         // construct the topic
         myTopic = new Topic(new PastryIdFactory(node.getEnvironment()), "Mining");
         System.out.println("myTopic = " + myTopic);
+        // now we can receive messages
+        endpoint.register();
+        // Miner
+        subscribe();
+
         this.miner = new Miner(new TransactionPool());
 
         // Key generation
@@ -109,12 +103,6 @@ public class PastryScribeClient implements ScribeClient, Application {
         privateKey = keyPairA.getPrivate();
         this.publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         REQUEST_CHAIN = true;
-
-        // now we can receive messages
-        endpoint.register();
-        // Miner
-        subscribe();
-
     }
 
     private void subscribe() {
@@ -197,7 +185,7 @@ public class PastryScribeClient implements ScribeClient, Application {
             if (!listPublicKeys.contains(publicKey)) {
                 listPublicKeys.add(publicKey);
                 int currentSize = listPublicKeys.size();
-                System.out.println("currentSize: " + currentSize);
+                //System.out.println("currentSize: " + currentSize);
                 routeMsgDirect(msg.from, new PastryScribeContent(endpoint.getLocalNodeHandle(), publicKeyStr,
                         PastryScribeContent.contentType.PUBLIC_KEY));
             }
@@ -216,7 +204,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         boolean hasChain = this.chain == null;
         if (hasChain) {
             this.chain = JsonParser.jsonToChain(chain.content);
-            System.out.println("Cadena obtenida");
+            System.out.println("----------Cadena obtenida");
         }
     }
 
@@ -228,9 +216,13 @@ public class PastryScribeClient implements ScribeClient, Application {
         Block newBlock = JsonParser.jsonToBlock(block.content);
         if (!newBlock.previousHash.isEmpty()) {
             System.out.println("Before size: " + this.chain.getChainSize());
-            this.chain.addBlock(newBlock);
-            System.out.println("Current size: " + this.chain.getChainSize());
+            this.chain.addNewBlock(newBlock);
+            chain.listAllBlocks();
+            
+            System.out.println("Current Chain size: " + this.chain.getChainSize());
             System.out.println("Block added to chain");
+        }else{
+            System.out.println("previus hash is empty");
         }
     }
 
@@ -240,23 +232,32 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     public void handlerTransactionDelivery(PastryScribeContent trans) {
         Transaction tx = JsonParser.jsonToTransaction(trans.content);
-        System.out.println("Transaction hash: " + tx.hash);
+        //System.out.println("Transaction hash: " + tx.hash);
         MinerController.incommingTransaction(this.miner, tx);
-        System.out.println("Transaction added to miner pool");
+        //System.out.println("Transaction added to miner pool");
 
         int numberOfTxPerBlock = ConfigController.readConfigJson().numberOfTxPerBlock;
-        if (this.miner.getTxPool().getTransactions().size() == numberOfTxPerBlock) {
+        if (this.miner.getTxPool().getTransactions().size() >= numberOfTxPerBlock) {
             System.out.println("[TIEMPO DE MINADO]");
             Block minerBlock = MinerController.GenerateCandiateBock(this.miner, this.chain);
             if (minerBlock != null) {
                 //minando
                 long startTime = System.currentTimeMillis();
                 System.out.println("$$$$$$$$$$$$$$$$$$$EMPEZO EL MINADO");
+
+                Block newBlock = this.chain.addBlock(minerBlock);
                 
-                this.chain.addBlock(minerBlock);
-                
+                //send block
+                if(newBlock != null){
+                    System.out.println("_____________Enviando bloque numero: "+newBlock.index);
+                  sendBlock(JsonParser.blockToJson(newBlock));  
+                }else{
+                    System.out.println("Fallo la creacion del bloque");
+                }
                 long endTime = System.currentTimeMillis() - startTime; // tiempo en que se ejecuta la op
                 System.out.println("$$$$$$$$$$$$$$$$$$TIEMPO DE MINADO: " + endTime);
+            }else{
+                System.out.println("el minero es null, necesita más transacciones validas");
             }
         }
         //this.miner.getTxPool().showTransactions();
@@ -317,7 +318,7 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     public void sendTransaction(String trans) {
         if (myScribe.containsTopic(myTopic)) {
-            System.out.println("Node " + endpoint.getLocalNodeHandle() + " sending transaction");
+            //System.out.println("Node " + endpoint.getLocalNodeHandle() + " sending transaction");
             PastryScribeContent myMessage = new PastryScribeContent(endpoint.getLocalNodeHandle(), trans,
                     PastryScribeContent.contentType.TRANSACTION);
             myScribe.publish(myTopic, myMessage);
@@ -339,9 +340,9 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     public Transaction generateRandomTransaction() {
         int currentSize = listPublicKeys.size();
-        System.out.println("currentSize: " + currentSize);
+        //System.out.println("currentSize: " + currentSize);
         if (currentSize > 0) {
-            System.out.println("generate tx");
+            //System.out.println("generate tx");
             Random r = new Random();
             int selectedId = r.nextInt(currentSize);
             String selectedKey = listPublicKeys.get(selectedId);

@@ -4,6 +4,7 @@ import Blockchain.Model.Block;
 import Blockchain.Model.Chain;
 import Blockchain.Model.Miner;
 import Blockchain.Model.Transaction;
+import Utils.ConfigController;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ public class MinerController {
     public static Block GenerateCandiateBock(Miner miner, Chain theChain) {
         ArrayList<Transaction> txToPublish = checkTransactions(miner.getTxPool().getTransactions(), theChain);
 
-        if (txToPublish.size() < 1) {
+        if (txToPublish.size() < ConfigController.readConfigJson().numberOfTxPerBlock) {
             return null;
         }
         Block candidateBlock = BlockController.createNewBlock(theChain.getChainSize(),
@@ -38,7 +39,7 @@ public class MinerController {
         Iterator txIterator = transactions.iterator();
         while (txIterator.hasNext()) {
             Transaction tx = (Transaction) txIterator.next();
-            System.out.println(tx.getData()[0]);
+            //System.out.println(tx.getData()[0]);
             //System.out.println("CurrentTx: " + tx.getData()[0]);
             boolean removeTx = false;
             String contractName = tx.getTo_address();
@@ -52,7 +53,7 @@ public class MinerController {
                     Object smartContractObj = smartContractClass.newInstance();
                     Method m = smartContractObj.getClass().getMethod("run", Chain.class, Transaction.class, ArrayList.class);
                     boolean contractSuccess = (boolean) m.invoke(smartContractObj, theChain, tx, txToPublish);
-                    System.out.println("contractSuccess: " + contractSuccess);
+                    //System.out.println("contractSuccess: " + contractSuccess);
                     if (contractSuccess == false) {
                         removeTx = true;
                     }
@@ -72,13 +73,13 @@ public class MinerController {
                     Logger.getLogger(MinerController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            System.out.println("[TX TO REMOVE]  "+ removeTx);
+            //System.out.println("[TX TO REMOVE]  "+ removeTx);
             if (removeTx) {
                 txIterator.remove();
             } else {
                 txToPublish.add(tx);
             }
-            System.out.println("[TX TO PUBLISH] "+txToPublish.size());
+            //System.out.println("[TX TO PUBLISH] "+txToPublish.size());
         }
         return txToPublish;
     }

@@ -21,7 +21,7 @@ public class Chain {
 
     private static int idCount = 0;
     private static Semaphore mutex = new Semaphore(1);
-    @JsonDeserialize(as=ArrayList.class, contentAs=Block.class)
+    @JsonDeserialize(as = ArrayList.class, contentAs = Block.class)
     public ArrayList<Block> chain;
 
     public ArrayList<Block> getChain() {
@@ -33,13 +33,14 @@ public class Chain {
     public Chain() {
         this(ConfigController.readConfigJson().difficulty);
     }
+
     @JsonCreator
-    public Chain(@JsonProperty("difficulty") int difficulty, @JsonProperty("id") int id, @JsonProperty("chain") ArrayList chain){
+    public Chain(@JsonProperty("difficulty") int difficulty, @JsonProperty("id") int id, @JsonProperty("chain") ArrayList chain) {
         this.difficulty = difficulty;
         this.id = id;
         this.chain = chain;
     }
-    
+
     public Chain(int difficulty) {
         chain = new ArrayList();
         id = idCount++;
@@ -48,7 +49,7 @@ public class Chain {
         System.out.println("Blockchain " + id + " created successfuly!");
     }
 
-    public void addGenesisBlock(String publicKeyStr, PrivateKey privateKey) { 
+    public void addGenesisBlock(String publicKeyStr, PrivateKey privateKey) {
         try {
             String amount = ConfigController.readConfigJson().initialAmount;
             Transaction tx0 = new Transaction(publicKeyStr, "JavaContractCoin", new String[]{publicKeyStr, amount});
@@ -57,10 +58,10 @@ public class Chain {
             txs.add(tx0);
             long startTime = System.currentTimeMillis();
             System.out.println("$$$$$$$$$$$$$$$$$$$EMPEZO EL MINADO");
-            
+
             Block b = BlockController.createNewBlock(0, LocalDateTime.now().toString(), txs, "0");
             BlockController.validate(b, difficulty);
-            
+
             long endTime = System.currentTimeMillis() - startTime; // tiempo en que se ejecuta la op
             System.out.println("$$$$$$$$$$$$$$$$$$TIEMPO DE MINADO: "+ endTime);
             chain.add(b);
@@ -71,7 +72,7 @@ public class Chain {
         }
     }
 
-    public synchronized boolean addBlock(Block b) {
+    public synchronized Block addBlock(Block b) {
         try {
             mutex.acquire();
             if (b.verifyHash(difficulty)) {
@@ -79,24 +80,41 @@ public class Chain {
                 b.setPreviousHash(ant.getHash());
                 b.setIndex(chain.size());
                 BlockController.validate(b, difficulty);
-                chain.add(b);
+                //chain.add(b);
                 mutex.release();
-                return true;
+                return b;
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(Chain.class.getName()).log(Level.SEVERE, null, ex);
         }
         System.out.println("Failed to add new block " + id);
-        return false;
+        return null;
     }
+
+    public void addNewBlock(Block b) {
+        boolean repetedMerkleTree = false;
+        for(Block currentBlock : chain){
+            if (b.getMerkleRoot() == currentBlock.getMerkleRoot()) {
+                repetedMerkleTree = true;
+            }
+        }
+        if (!repetedMerkleTree) {
+            chain.add(b);
+        }else{
+            System.out.println("El bloque tiene un Merkletree repetido");
+        }
+    }
+
     @JsonIgnore
-    public Block getLastBlock() { 
+    public Block getLastBlock() {
         return chain.get(chain.size() - 1);
     }
+
     @JsonIgnore
-    public int getChainSize(){
+    public int getChainSize() {
         return this.chain.size();
     }
+
     public void listAllBlocks() {
         System.out.println("Lista de bloques - Blockchain" + id + ":");
         System.out.println("---");
