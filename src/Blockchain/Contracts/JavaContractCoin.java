@@ -33,7 +33,7 @@ public class JavaContractCoin extends JavaContract {
             if (currentBlock.getIndex() == 0) {
                 System.out.println("[Checking Genesis] " + theChain.getChainSize());
                 for (Transaction currentBlockTx : currentBlock.getTransactions()) {
-                    if (currentBlockTx.getTo_address() == "JavaContractCoin") {
+                    if ((currentBlockTx.getTo_address()).equals("JavaContractCoin")) {
                         System.out.println("----");
                         System.out.println(currentBlockTx.getData()[0]);
                         System.out.println(tx.getFrom_address());

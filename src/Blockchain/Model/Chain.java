@@ -55,8 +55,14 @@ public class Chain {
             TransactionController.signTransaction(tx0, privateKey);
             ArrayList<Transaction> txs = new ArrayList();
             txs.add(tx0);
+            long startTime = System.currentTimeMillis();
+            System.out.println("$$$$$$$$$$$$$$$$$$$EMPEZO EL MINADO");
+            
             Block b = BlockController.createNewBlock(0, LocalDateTime.now().toString(), txs, "0");
             BlockController.validate(b, difficulty);
+            
+            long endTime = System.currentTimeMillis() - startTime; // tiempo en que se ejecuta la op
+            System.out.println("$$$$$$$$$$$$$$$$$$TIEMPO DE MINADO: "+ endTime);
             chain.add(b);
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(Chain.class.getName()).log(Level.SEVERE, null, ex);

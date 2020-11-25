@@ -109,7 +109,7 @@ public class PastryScribeClient implements ScribeClient, Application {
         privateKey = keyPairA.getPrivate();
         this.publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         REQUEST_CHAIN = true;
-        
+
         // now we can receive messages
         endpoint.register();
         // Miner
@@ -123,7 +123,8 @@ public class PastryScribeClient implements ScribeClient, Application {
     }
 
     public void startPublishTask() {
-        publishTask = endpoint.scheduleMessage(new PublishContent(), 10000, 10000);
+        int miliSeconds = ConfigController.readConfigJson().timeToGenerateTxMiliSeconds;
+        publishTask = endpoint.scheduleMessage(new PublishContent(), miliSeconds, miliSeconds);
     }
 
     public void unsuscribe() {
@@ -242,15 +243,20 @@ public class PastryScribeClient implements ScribeClient, Application {
         System.out.println("Transaction hash: " + tx.hash);
         MinerController.incommingTransaction(this.miner, tx);
         System.out.println("Transaction added to miner pool");
-        
+
         int numberOfTxPerBlock = ConfigController.readConfigJson().numberOfTxPerBlock;
-        if(this.miner.getTxPool().getTransactions().size() == numberOfTxPerBlock){
+        if (this.miner.getTxPool().getTransactions().size() == numberOfTxPerBlock) {
             System.out.println("[TIEMPO DE MINADO]");
             Block minerBlock = MinerController.GenerateCandiateBock(this.miner, this.chain);
             if (minerBlock != null) {
                 //minando
+                long startTime = System.currentTimeMillis();
+                System.out.println("$$$$$$$$$$$$$$$$$$$EMPEZO EL MINADO");
+                
                 this.chain.addBlock(minerBlock);
-                System.out.println("paso el minado !!!!");
+                
+                long endTime = System.currentTimeMillis() - startTime; // tiempo en que se ejecuta la op
+                System.out.println("$$$$$$$$$$$$$$$$$$TIEMPO DE MINADO: " + endTime);
             }
         }
         //this.miner.getTxPool().showTransactions();
