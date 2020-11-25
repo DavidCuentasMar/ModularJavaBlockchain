@@ -92,16 +92,18 @@ public class Chain {
     }
 
     public void addNewBlock(Block b) {
-        boolean repetedMerkleTree = false;
+        boolean refuseBlock = false;
         for(Block currentBlock : chain){
-            if (b.getMerkleRoot() == currentBlock.getMerkleRoot()) {
-                repetedMerkleTree = true;
+            refuseBlock = b.getMerkleRoot().equals(currentBlock.getMerkleRoot());
+            //refuseBlock = currentBlock.getPreviousHash().equals(b.getPreviousHash());
+            if (refuseBlock) {
+                break;
             }
         }
-        if (!repetedMerkleTree) {
+        if (!refuseBlock) {
             chain.add(b);
         }else{
-            System.out.println("El bloque tiene un Merkletree repetido");
+            System.out.println("El bloque fue rechazado por el algoritmo de consenso");
         }
     }
 

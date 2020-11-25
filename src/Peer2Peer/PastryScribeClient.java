@@ -214,15 +214,19 @@ public class PastryScribeClient implements ScribeClient, Application {
 
     public void handlerBlockDelivery(PastryScribeContent block) {
         Block newBlock = JsonParser.jsonToBlock(block.content);
-        if (!newBlock.previousHash.isEmpty()) {
-            System.out.println("Before size: " + this.chain.getChainSize());
-            this.chain.addNewBlock(newBlock);
-            chain.listAllBlocks();
-            
-            System.out.println("Current Chain size: " + this.chain.getChainSize());
-            System.out.println("Block added to chain");
+        if (this.chain != null) {
+            if (!newBlock.previousHash.isEmpty()) {
+                System.out.println("Before size: " + this.chain.getChainSize());
+                this.chain.addNewBlock(newBlock);
+                chain.listAllBlocks();
+
+                System.out.println("Current Chain size: " + this.chain.getChainSize());
+                System.out.println("Block added to chain");
+            } else {
+                System.out.println("previus hash is empty");
+            }
         }else{
-            System.out.println("previus hash is empty");
+            System.out.println("There is no chain yet!"); 
         }
     }
 
@@ -246,17 +250,17 @@ public class PastryScribeClient implements ScribeClient, Application {
                 System.out.println("$$$$$$$$$$$$$$$$$$$EMPEZO EL MINADO");
 
                 Block newBlock = this.chain.addBlock(minerBlock);
-                
+
                 //send block
-                if(newBlock != null){
-                    System.out.println("_____________Enviando bloque numero: "+newBlock.index);
-                  sendBlock(JsonParser.blockToJson(newBlock));  
-                }else{
+                if (newBlock != null) {
+                    System.out.println("_____________Enviando bloque numero: " + newBlock.index);
+                    sendBlock(JsonParser.blockToJson(newBlock));
+                } else {
                     System.out.println("Fallo la creacion del bloque");
                 }
                 long endTime = System.currentTimeMillis() - startTime; // tiempo en que se ejecuta la op
                 System.out.println("$$$$$$$$$$$$$$$$$$TIEMPO DE MINADO: " + endTime);
-            }else{
+            } else {
                 System.out.println("el minero es null, necesita más transacciones validas");
             }
         }

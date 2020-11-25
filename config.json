@@ -1,5 +1,5 @@
 {
-    "numberOfTxPerBlock":"10",
+    "numberOfTxPerBlock":"20",
     "initialAmount":"5000000.0",
     "difficulty":"5",
     "timeToGenerateTxMiliSeconds": "2000"
