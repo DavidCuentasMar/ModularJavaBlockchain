@@ -38,7 +38,7 @@ you have to open a terminal and run this command to boot up the genesis node:
 
     $ java -jar dist/ModularJavaBlockchain.jar 9000 192.168.1.11 9000
 
-#### if you want to start i nodes in the same network:
+#### if you want to start i-th node in the same network:
 
     $ example java -jar dist/ModularJavaBlockchain.jar 9000+i 192.168.1.11 9000
 
