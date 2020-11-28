@@ -9,7 +9,7 @@ import rice.p2p.commonapi.NodeHandle;
 import rice.p2p.scribe.ScribeContent;
 
 /**
- *
+ * @author Jeff Hoye
  * @author Yennifer Herrera
  */
 public class PastryScribeContent implements ScribeContent {
@@ -25,7 +25,12 @@ public class PastryScribeContent implements ScribeContent {
     }
     public contentType type;
 
-
+    /**
+     * This constructor sets up the content
+     * @param from sender NodeHandler
+     * @param content
+     * @param type flag to identify the content type
+     */
     public PastryScribeContent(NodeHandle from, String content, contentType type) {
         this.from = from;
         this.content = content;

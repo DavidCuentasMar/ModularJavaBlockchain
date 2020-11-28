@@ -39,21 +39,17 @@ public class MinerController {
         Iterator txIterator = transactions.iterator();
         while (txIterator.hasNext()) {
             Transaction tx = (Transaction) txIterator.next();
-            //System.out.println(tx.getData()[0]);
-            //System.out.println("CurrentTx: " + tx.getData()[0]);
             boolean removeTx = false;
             String contractName = tx.getTo_address();
             if (TransactionController.checkTransactionSignature(tx) == false) {
                 removeTx = true;
             }
             if (removeTx == false) {
-                //System.out.println(contractName);
                 try {
                     Class<?> smartContractClass = Class.forName("Blockchain.Contracts." + contractName);
                     Object smartContractObj = smartContractClass.newInstance();
                     Method m = smartContractObj.getClass().getMethod("run", Chain.class, Transaction.class, ArrayList.class);
                     boolean contractSuccess = (boolean) m.invoke(smartContractObj, theChain, tx, txToPublish);
-                    //System.out.println("contractSuccess: " + contractSuccess);
                     if (contractSuccess == false) {
                         removeTx = true;
                     }
@@ -73,13 +69,11 @@ public class MinerController {
                     Logger.getLogger(MinerController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            //System.out.println("[TX TO REMOVE]  "+ removeTx);
             if (removeTx) {
                 txIterator.remove();
             } else {
                 txToPublish.add(tx);
             }
-            //System.out.println("[TX TO PUBLISH] "+txToPublish.size());
         }
         return txToPublish;
     }

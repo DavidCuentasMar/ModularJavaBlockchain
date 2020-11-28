@@ -94,7 +94,6 @@ public class Transaction {
 
         MerkleTrees merkleTrees = new MerkleTrees(tempTxList);
         merkleTrees.merkle_tree();
-        System.out.println("root : " + merkleTrees.getRoot());
 
         return merkleTrees.getRoot();
     }
