@@ -53,15 +53,12 @@ public class DigitalSignature {
 
         String plaintext = "Hello";
 
-        //...... sign
         Signature ecdsaSign = Signature.getInstance(ALGO);
         ecdsaSign.initSign(privateKey);
         ecdsaSign.update(plaintext.getBytes("UTF-8"));
         byte[] signature = ecdsaSign.sign();
         String pub = Base64.getEncoder().encodeToString(publicKey.getEncoded());
         String sig = Base64.getEncoder().encodeToString(signature);
-        System.out.println(sig);
-        System.out.println(pub);
 
         JSONObject obj = new JSONObject();
         obj.put("publicKey", pub);
@@ -102,16 +99,12 @@ public class DigitalSignature {
     }
 
     public static void generateKeys() throws Exception {
-        //https://stackoverflow.com/questions/11339788/tutorial-of-ecdsa-algorithm-to-sign-a-string
+        // https://stackoverflow.com/questions/11339788/tutorial-of-ecdsa-algorithm-to-sign-a-string
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
         keyGen.initialize(new ECGenParameterSpec("secp256k1"), new SecureRandom());
         KeyPair pair = keyGen.generateKeyPair();
         PrivateKey priv = pair.getPrivate();
         PublicKey pub = pair.getPublic();
-        //System.out.println("Public Key");
-        //System.out.println(pub);
-        //System.out.println("Private Key");
-        //System.out.println(priv);
         /*
          * Create a Signature object and initialize it with the private key
          */
@@ -160,11 +153,6 @@ public class DigitalSignature {
             }
         } catch (Exception ex) {
             result = false;
-        }
-        if(result){
-            //System.out.println(tx.hash.subSequence(tx.hash.length()-7, tx.hash.length())+ " [Valid Transaction]");
-        }else{
-            //System.out.println(tx.hash.subSequence(tx.hash.length()-7, tx.hash.length())+ " [Invaid Transaction]");
         }
         return result;
     }

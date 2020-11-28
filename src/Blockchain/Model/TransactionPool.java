@@ -15,7 +15,7 @@ public class TransactionPool {
     }
     
     public void showTransactions () {
-        System.out.println("tamaño del pool: "+transactions.size());
+        System.out.println("Tamaño del pool de transacciones: "+transactions.size());
         for (Transaction tx: transactions){
             String strTx = JsonParser.transactionToJson(tx);
             System.out.println(strTx);

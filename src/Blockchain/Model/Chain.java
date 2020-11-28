@@ -45,7 +45,6 @@ public class Chain {
         chain = new ArrayList();
         id = idCount++;
         this.difficulty = difficulty;
-        //addGenesisBlock();
         System.out.println("Blockchain " + id + " created successfuly!");
     }
 
@@ -57,13 +56,14 @@ public class Chain {
             ArrayList<Transaction> txs = new ArrayList();
             txs.add(tx0);
             long startTime = System.currentTimeMillis();
-            System.out.println("$$$$$$$$$$$$$$$$$$$EMPEZO EL MINADO");
+            System.out.println("---> Inicio del proceso de minado del bloque génesis");
 
             Block b = BlockController.createNewBlock(0, LocalDateTime.now().toString(), txs, "0");
             BlockController.validate(b, difficulty);
 
-            long endTime = System.currentTimeMillis() - startTime; // tiempo en que se ejecuta la op
-            System.out.println("$$$$$$$$$$$$$$$$$$TIEMPO DE MINADO: "+ endTime);
+            long endTime = System.currentTimeMillis() - startTime;
+            System.out.println(" Proceso finalizado");
+            System.out.println("<--- TIEMPO DE MINADO: "+ endTime);
             chain.add(b);
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(Chain.class.getName()).log(Level.SEVERE, null, ex);
@@ -87,7 +87,6 @@ public class Chain {
         } catch (InterruptedException ex) {
             Logger.getLogger(Chain.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Failed to add new block " + id);
         return null;
     }
 
@@ -102,8 +101,6 @@ public class Chain {
         }
         if (!refuseBlock) {
             chain.add(b);
-        }else{
-            System.out.println("El bloque fue rechazado por el algoritmo de consenso");
         }
     }
 
@@ -119,7 +116,7 @@ public class Chain {
 
     public void listAllBlocks() {
         System.out.println("Lista de bloques - Blockchain" + id + ":");
-        System.out.println("---");
+        System.out.println("[---");
         for (Block b : chain) {
             System.out.println("Index: " + b.getIndex());
             System.out.println("Previous Hash:" + b.getPreviousHash());
@@ -127,7 +124,7 @@ public class Chain {
             System.out.println("Merkle Root: " + b.getMerkleRoot());
             System.out.println("Timestamp: " + b.getTimestamp());
             System.out.println("# of Transactions: " + b.getTransactions().size());
-            System.out.println("---");
+            System.out.println("---]");
         }
     }
 
