@@ -3,7 +3,6 @@
 ##############################
 .mtj.tmp/
 *.class
-*.jar
 *.war
 *.ear
 *.nar
@@ -64,6 +63,8 @@ local.properties
 ##############################
 ## NetBeans
 ##############################
+nbproject/build-impl.xml
+nbproject/genfiles.properties
 nbproject/private/
 build/
 nbbuild/

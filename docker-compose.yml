@@ -1,0 +1,52 @@
+version: "3"
+services:
+  node_1:
+    build: .
+    command:
+      [
+        "java",
+        "-jar",
+        "./dist/ModularJavaBlockchain.jar",
+        "9000",
+        "172.26.0.2",
+        "9000",
+      ]
+  node_2:
+    build: .
+    command:
+      [
+        "java",
+        "-jar",
+        "./dist/ModularJavaBlockchain.jar",
+        "9001",
+        "172.26.0.2",
+        "9000",
+      ]
+    depends_on:
+      - node_1
+  node_3:
+    build: .
+    command:
+      [
+        "java",
+        "-jar",
+        "./dist/ModularJavaBlockchain.jar",
+        "9003",
+        "172.26.0.2",
+        "9000",
+      ]
+    depends_on:
+      - node_1
+  node_4:
+    build: .
+    command:
+      [
+        "java",
+        "-jar",
+        "./dist/ModularJavaBlockchain.jar",
+        "9004",
+        "172.26.0.2",
+        "9000",
+      ]
+    depends_on:
+      - node_1
